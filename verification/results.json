@@ -3,388 +3,395 @@
  "shell": "mongosh 2.3.8",
  "steps": [
   {
-   "id": "p0_reset",
-   "code": "db.dropDatabase()",
-   "note": "",
-   "output": "{ ok: 1, dropped: 'adbs' }",
+   "id": "p1_setup",
+   "part": 1,
+   "role": "setup",
+   "code": "use adbs_part1\ndb.dropDatabase()",
+   "output": "{ ok: 1, dropped: 'adbs_part1' }",
    "exit": 0
   },
   {
    "id": "p1_insertOne",
+   "part": 1,
+   "role": "cmd",
    "code": "db.movies.insertOne({\"title\" : \"Stand by Me\"})",
-   "note": "",
-   "output": "{\n  acknowledged: true,\n  insertedId: ObjectId('6ae45e30f1c27252bf544ca7')\n}",
+   "output": "{\n  acknowledged: true,\n  insertedId: ObjectId('6ae46b1b82cee3acaf544ca7')\n}",
    "exit": 0
   },
   {
    "id": "p1_insertMany",
-   "code": "db.movies.insertMany([{\"title\" : \"Ghostbusters\"}, {\"title\" : \"E.T.\"}, {\"title\" : \"Blade Runner\"}])",
-   "note": "",
-   "output": "{\n  acknowledged: true,\n  insertedIds: {\n    '0': ObjectId('6ae45e300fd0e3adfc544ca7'),\n    '1': ObjectId('6ae45e300fd0e3adfc544ca8'),\n    '2': ObjectId('6ae45e300fd0e3adfc544ca9')\n  }\n}",
+   "part": 1,
+   "role": "cmd",
+   "code": "db.movies.insertMany([{\"title\" : \"Ghostbusters\"},\n  {\"title\" : \"E.T.\"},\n  {\"title\" : \"Blade Runner\"}])",
+   "output": "{\n  acknowledged: true,\n  insertedIds: {\n    '0': ObjectId('6ae46b1c6105fbbbe9544ca7'),\n    '1': ObjectId('6ae46b1c6105fbbbe9544ca8'),\n    '2': ObjectId('6ae46b1c6105fbbbe9544ca9')\n  }\n}",
    "exit": 0
   },
   {
    "id": "p1_unordered",
-   "code": "db.movies.insertMany([{\"_id\" : 3, \"title\" : \"Sixteen Candles\"}, {\"_id\" : 4, \"title\" : \"The Terminator\"}, {\"_id\" : 4, \"title\" : \"The Princess Bride\"}, {\"_id\" : 5, \"title\" : \"Scarface\"}], {\"ordered\" : false})",
-   "note": "expected error",
-   "output": "MongoBulkWriteError: E11000 duplicate key error collection: adbs.movies index: _id_ dup key: { _id: 4 }",
+   "part": 1,
+   "role": "error",
+   "code": "db.movies.insertMany([{\"_id\" : 3, \"title\" : \"Sixteen Candles\"},\n  {\"_id\" : 4, \"title\" : \"The Terminator\"},\n  {\"_id\" : 4, \"title\" : \"The Princess Bride\"},\n  {\"_id\" : 5, \"title\" : \"Scarface\"}],\n  {\"ordered\" : false})",
+   "output": "MongoBulkWriteError: E11000 duplicate key error collection: adbs_part1.movies index: _id_ dup key: { _id: 4 }",
    "exit": 1
   },
   {
-   "id": "p1_count_after_unordered",
-   "code": "db.movies.countDocuments({\"_id\" : {\"$in\" : [3,4,5]}})",
-   "note": "",
-   "output": "3",
+   "id": "p1_unordered_find",
+   "part": 1,
+   "role": "check",
+   "code": "db.movies.find({\"_id\" : {\"$in\" : [3, 4, 5]}})",
+   "output": "[\n  { _id: 3, title: 'Sixteen Candles' },\n  { _id: 4, title: 'The Terminator' },\n  { _id: 5, title: 'Scarface' }\n]",
    "exit": 0
   },
   {
-   "id": "p1_ordered_reset",
-   "code": "db.ordered.drop(); db.ordered.insertMany([{\"_id\" : 1}, {\"_id\" : 1}, {\"_id\" : 2}])",
-   "note": "expected error",
-   "output": "MongoBulkWriteError: E11000 duplicate key error collection: adbs.ordered index: _id_ dup key: { _id: 1 }",
+   "id": "p1_ordered",
+   "part": 1,
+   "role": "error",
+   "code": "db.ordered.insertMany([{\"_id\" : 3, \"title\" : \"Sixteen Candles\"},\n  {\"_id\" : 4, \"title\" : \"The Terminator\"},\n  {\"_id\" : 4, \"title\" : \"The Princess Bride\"},\n  {\"_id\" : 5, \"title\" : \"Scarface\"}])",
+   "output": "MongoBulkWriteError: E11000 duplicate key error collection: adbs_part1.ordered index: _id_ dup key: { _id: 4 }",
    "exit": 1
   },
   {
-   "id": "p1_ordered_count",
-   "code": "db.ordered.countDocuments()",
-   "note": "",
-   "output": "1",
+   "id": "p1_ordered_find",
+   "part": 1,
+   "role": "check",
+   "code": "db.ordered.find()",
+   "output": "[\n  { _id: 3, title: 'Sixteen Candles' },\n  { _id: 4, title: 'The Terminator' }\n]",
    "exit": 0
   },
   {
    "id": "p1_deleteOne",
+   "part": 1,
+   "role": "cmd",
    "code": "db.movies.deleteOne({\"_id\" : 4})",
-   "note": "",
    "output": "{ acknowledged: true, deletedCount: 1 }",
    "exit": 0
   },
   {
-   "id": "p1_seed_years",
-   "code": "db.movies.updateOne({\"_id\":3},{\"$set\":{\"year\":1984}}); db.movies.insertMany([{\"_id\":0,\"title\":\"Top Gun\",\"year\":1986},{\"_id\":1,\"title\":\"Back to the Future\",\"year\":1985},{\"_id\":2,\"title\":\"The Goonies\",\"year\":1985}])",
-   "note": "",
-   "output": "{ acknowledged: true, insertedIds: { '0': 0, '1': 1, '2': 2 } }",
+   "id": "p1_deleteOne_find",
+   "part": 1,
+   "role": "check",
+   "code": "db.movies.find({\"_id\" : {\"$in\" : [3, 4, 5]}})",
+   "output": "[ { _id: 3, title: 'Sixteen Candles' }, { _id: 5, title: 'Scarface' } ]",
+   "exit": 0
+  },
+  {
+   "id": "p1_handout_movies",
+   "part": 1,
+   "role": "seed",
+   "code": "db.movies.deleteMany({})\ndb.movies.insertMany([{\"_id\" : 0, \"title\" : \"Top Gun\", \"year\" : 1985},\n  {\"_id\" : 1, \"title\" : \"Back to the Future\", \"year\" : 1985},\n  {\"_id\" : 3, \"title\" : \"Sixteen Candles\", \"year\" : 1984}])",
+   "output": "{ acknowledged: true, insertedIds: { '0': 0, '1': 1, '2': 3 } }",
+   "exit": 0
+  },
+  {
+   "id": "p1_before_deleteMany",
+   "part": 1,
+   "role": "check",
+   "code": "db.movies.find()",
+   "output": "[\n  { _id: 0, title: 'Top Gun', year: 1985 },\n  { _id: 1, title: 'Back to the Future', year: 1985 },\n  { _id: 3, title: 'Sixteen Candles', year: 1984 }\n]",
    "exit": 0
   },
   {
    "id": "p1_deleteMany",
+   "part": 1,
+   "role": "cmd",
    "code": "db.movies.deleteMany({\"year\" : 1985})",
-   "note": "",
    "output": "{ acknowledged: true, deletedCount: 2 }",
    "exit": 0
   },
   {
-   "id": "p1_remove_deprecated",
-   "code": "db.movies.remove({\"_id\" : 5})",
-   "note": "deprecated",
-   "output": "DeprecationWarning: Collection.remove() is deprecated. Use deleteOne, deleteMany, findOneAndDelete, or bulkWrite.\n{ acknowledged: true, deletedCount: 1 }",
+   "id": "p1_after_deleteMany",
+   "part": 1,
+   "role": "check",
+   "code": "db.movies.find()",
+   "output": "[ { _id: 3, title: 'Sixteen Candles', year: 1984 } ]",
    "exit": 0
   },
   {
-   "id": "p1_deleteMany_all",
-   "code": "db.scratch.drop(); db.scratch.insertMany([{a:1},{a:2},{a:3}]); db.scratch.deleteMany({})",
-   "note": "trap",
-   "output": "{ acknowledged: true, deletedCount: 3 }",
-   "exit": 0
-  },
-  {
-   "id": "p1_deleteOne_first",
-   "code": "db.scratch2.drop(); db.scratch2.insertMany([{_id:1,y:1985},{_id:2,y:1985}]); db.scratch2.deleteOne({y:1985}); db.scratch2.find()",
-   "note": "",
-   "output": "[ { _id: 2, y: 1985 } ]",
-   "exit": 0
-  },
-  {
-   "id": "p2_seed",
-   "code": "db.users.drop(); db.users.insertOne({\"name\" : \"Joe\", \"friends\" : 32, \"enemies\" : 2})",
-   "note": "",
-   "output": "{\n  acknowledged: true,\n  insertedId: ObjectId('6ae45e37cc2bb1fbf9544ca7')\n}",
-   "exit": 0
-  },
-  {
-   "id": "p2_findOne",
-   "code": "db.users.findOne({\"name\" : \"Joe\"}, {\"_id\" : 0})",
-   "note": "",
-   "output": "{ name: 'Joe', friends: 32, enemies: 2 }",
-   "exit": 0
-  },
-  {
-   "id": "p2_findOne_none",
-   "code": "db.users.findOne({\"name\" : \"Nobody\"})",
-   "note": "",
-   "output": "null",
-   "exit": 0
-  },
-  {
-   "id": "p2_replaceOne",
-   "code": "var joe = db.users.findOne({\"name\" : \"Joe\"}); joe.relationships = {\"friends\" : joe.friends, \"enemies\" : joe.enemies}; joe.username = joe.name; delete joe.friends; delete joe.enemies; delete joe.name; db.users.replaceOne({\"name\" : \"Joe\"}, joe)",
-   "note": "",
-   "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
-   "exit": 0
-  },
-  {
-   "id": "p2_after_replace",
-   "code": "db.users.findOne({\"username\" : \"Joe\"}, {\"_id\" : 0})",
-   "note": "",
-   "output": "{ relationships: { friends: 32, enemies: 2 }, username: 'Joe' }",
-   "exit": 0
-  },
-  {
-   "id": "p2_seed2",
-   "code": "db.users.insertOne({\"name\" : \"John\", \"age\" : 24, \"location\" : \"Taytay\"})",
-   "note": "",
-   "output": "{\n  acknowledged: true,\n  insertedId: ObjectId('6ae45e3a0ae0574e44544ca7')\n}",
-   "exit": 0
-  },
-  {
-   "id": "p2_updateOne_set",
-   "code": "db.users.updateOne({\"name\" : \"John\"}, {\"$set\" : {\"favorite book\" : \"Green Eggs and Ham\"}})",
-   "note": "",
-   "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
-   "exit": 0
-  },
-  {
-   "id": "p2_updateOne_unset",
-   "code": "db.users.updateOne({\"name\" : \"John\"}, {\"$unset\" : {\"favorite book\" : 1}})",
-   "note": "",
-   "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
-   "exit": 0
-  },
-  {
-   "id": "p2_updateMany_seed",
-   "code": "db.bday.drop(); db.bday.insertMany([{\"_id\":1,\"birthday\":\"10/13/1978\"},{\"_id\":2,\"birthday\":\"10/13/1978\"},{\"_id\":3,\"birthday\":\"10/13/1978\"}])",
-   "note": "",
+   "id": "p2_setup",
+   "part": 2,
+   "role": "setup",
+   "code": "use adbs_part2\ndb.dropDatabase()\ndb.users.insertOne({\"_id\" : ObjectId(\"4b2b9f67a1f631733d917a7a\"),\n  \"name\" : \"Joe\", \"friends\" : 32, \"enemies\" : 2})\ndb.users.insertOne({\"_id\" : ObjectId(\"4b253b067525f35f94b60a31\"),\n  \"name\" : \"John\", \"age\" : 24, \"sex\" : \"male\", \"location\" : \"Taytay\"})\ndb.books.insertOne({\"_id\" : ObjectId(\"4b253b067525f35f94b60a31\"),\n  \"title\" : \"MongoDB-2019\",\n  \"author\" : {\"name\" : \"Nicole\", \"email\" : \"Nic@example.com\"}})\ndb.users.insertMany([{\"_id\" : 1, \"birthday\" : \"10/13/1978\"},\n  {\"_id\" : 2, \"birthday\" : \"10/13/1978\"},\n  {\"_id\" : 3, \"birthday\" : \"10/13/1978\"}])",
    "output": "{ acknowledged: true, insertedIds: { '0': 1, '1': 2, '2': 3 } }",
    "exit": 0
   },
   {
+   "id": "p2_findOne",
+   "part": 2,
+   "role": "cmd",
+   "code": "db.users.findOne({\"name\" : \"Joe\"})",
+   "output": "{\n  _id: ObjectId('4b2b9f67a1f631733d917a7a'),\n  name: 'Joe',\n  friends: 32,\n  enemies: 2\n}",
+   "exit": 0
+  },
+  {
+   "id": "p2_replaceOne",
+   "part": 2,
+   "role": "cmd",
+   "code": "var Joe = db.users.findOne({\"name\" : \"Joe\"});\nJoe.relationships = {\"friends\" : Joe.friends, \"enemies\" : Joe.enemies};\nJoe.username = Joe.name;\ndelete Joe.friends; delete Joe.enemies; delete Joe.name;\ndb.users.replaceOne({\"name\" : \"Joe\"}, Joe)",
+   "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
+   "exit": 0
+  },
+  {
+   "id": "p2_replaceOne_find",
+   "part": 2,
+   "role": "check",
+   "code": "db.users.findOne({\"username\" : \"Joe\"})",
+   "output": "{\n  _id: ObjectId('4b2b9f67a1f631733d917a7a'),\n  relationships: { friends: 32, enemies: 2 },\n  username: 'Joe'\n}",
+   "exit": 0
+  },
+  {
+   "id": "p2_set",
+   "part": 2,
+   "role": "cmd",
+   "code": "db.users.updateOne({\"name\" : \"John\"},\n  {\"$set\" : {\"favorite book\" : \"Green Eggs and Ham\"}})",
+   "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
+   "exit": 0
+  },
+  {
+   "id": "p2_set_find",
+   "part": 2,
+   "role": "check",
+   "code": "db.users.findOne({\"name\" : \"John\"})",
+   "output": "{\n  _id: ObjectId('4b253b067525f35f94b60a31'),\n  name: 'John',\n  age: 24,\n  sex: 'male',\n  location: 'Taytay',\n  'favorite book': 'Green Eggs and Ham'\n}",
+   "exit": 0
+  },
+  {
+   "id": "p2_set_array",
+   "part": 2,
+   "role": "cmd",
+   "code": "db.users.updateOne({\"name\" : \"John\"},\n  {\"$set\" : {\"favorite book\" :\n  [\"Cat's Cradle\", \"Foundation Trilogy\", \"Ender's Game\"]}})",
+   "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
+   "exit": 0
+  },
+  {
+   "id": "p2_set_array_find",
+   "part": 2,
+   "role": "check",
+   "code": "db.users.findOne({\"name\" : \"John\"})",
+   "output": "{\n  _id: ObjectId('4b253b067525f35f94b60a31'),\n  name: 'John',\n  age: 24,\n  sex: 'male',\n  location: 'Taytay',\n  'favorite book': [ \"Cat's Cradle\", 'Foundation Trilogy', \"Ender's Game\" ]\n}",
+   "exit": 0
+  },
+  {
+   "id": "p2_unset",
+   "part": 2,
+   "role": "cmd",
+   "code": "db.users.updateOne({\"name\" : \"John\"},\n  {\"$unset\" : {\"favorite book\" : 1}})",
+   "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
+   "exit": 0
+  },
+  {
+   "id": "p2_unset_find",
+   "part": 2,
+   "role": "check",
+   "code": "db.users.findOne({\"name\" : \"John\"})",
+   "output": "{\n  _id: ObjectId('4b253b067525f35f94b60a31'),\n  name: 'John',\n  age: 24,\n  sex: 'male',\n  location: 'Taytay'\n}",
+   "exit": 0
+  },
+  {
+   "id": "p2_books_set",
+   "part": 2,
+   "role": "cmd",
+   "code": "db.books.updateOne({\"author.name\" : \"Nicole\"},\n  {\"$set\" : {\"author.name\" : \"Nicole Tagayon\"}})",
+   "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
+   "exit": 0
+  },
+  {
+   "id": "p2_books_find",
+   "part": 2,
+   "role": "check",
+   "code": "db.books.findOne()",
+   "output": "{\n  _id: ObjectId('4b253b067525f35f94b60a31'),\n  title: 'MongoDB-2019',\n  author: { name: 'Nicole Tagayon', email: 'Nic@example.com' }\n}",
+   "exit": 0
+  },
+  {
    "id": "p2_updateMany",
-   "code": "db.bday.updateMany({\"birthday\" : \"10/13/1978\"}, {\"$set\" : {\"gift\" : \"Happy Birthday!\"}})",
-   "note": "",
+   "part": 2,
+   "role": "cmd",
+   "code": "db.users.updateMany({\"birthday\" : \"10/13/1978\"},\n  {\"$set\" : {\"gift\" : \"Happy Birthday!\"}})",
    "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 3,\n  modifiedCount: 3,\n  upsertedCount: 0\n}",
    "exit": 0
   },
   {
-   "id": "p2_updateOne_operatorless",
-   "code": "db.users.updateOne({\"name\" : \"John\"}, {\"age\" : 25})",
-   "note": "expected error",
-   "output": "MongoInvalidArgumentError: Update document requires atomic operators",
-   "exit": 1
+   "id": "p2_updateMany_find",
+   "part": 2,
+   "role": "check",
+   "code": "db.users.find({\"birthday\" : \"10/13/1978\"})",
+   "output": "[\n  { _id: 1, birthday: '10/13/1978', gift: 'Happy Birthday!' },\n  { _id: 2, birthday: '10/13/1978', gift: 'Happy Birthday!' },\n  { _id: 3, birthday: '10/13/1978', gift: 'Happy Birthday!' }\n]",
+   "exit": 0
   },
   {
-   "id": "p3_seed",
-   "code": "db.students.drop(); db.students.insertMany([{\"name\":\"Ana\",\"age\":17},{\"name\":\"Ben\",\"age\":18},{\"name\":\"Cara\",\"age\":24},{\"name\":\"Dan\",\"age\":30},{\"name\":\"Eli\",\"age\":31}])",
-   "note": "",
-   "output": "{\n  acknowledged: true,\n  insertedIds: {\n    '0': ObjectId('6ae45e3efd5693fb10544ca7'),\n    '1': ObjectId('6ae45e3efd5693fb10544ca8'),\n    '2': ObjectId('6ae45e3efd5693fb10544ca9'),\n    '3': ObjectId('6ae45e3efd5693fb10544caa'),\n    '4': ObjectId('6ae45e3efd5693fb10544cab')\n  }\n}",
+   "id": "p3_setup",
+   "part": 3,
+   "role": "setup",
+   "code": "use adbs_part3\ndb.dropDatabase()\ndb.users.insertMany([{\"_id\" : 1, \"name\" : \"Ana\", \"age\" : 17},\n  {\"_id\" : 2, \"name\" : \"Ben\", \"age\" : 18},\n  {\"_id\" : 3, \"name\" : \"Cara\", \"age\" : 24},\n  {\"_id\" : 4, \"name\" : \"Dan\", \"age\" : 30},\n  {\"_id\" : 5, \"name\" : \"Eli\", \"age\" : 31}])",
+   "output": "{\n  acknowledged: true,\n  insertedIds: { '0': 1, '1': 2, '2': 3, '3': 4, '4': 5 }\n}",
    "exit": 0
   },
   {
    "id": "p3_lt",
-   "code": "db.students.find({\"age\" : {\"$lt\" : 18}}, {\"_id\" : 0})",
-   "note": "",
-   "output": "[ { name: 'Ana', age: 17 } ]",
+   "part": 3,
+   "role": "cmd",
+   "code": "db.users.find({\"age\" : {\"$lt\" : 18}})",
+   "output": "[ { _id: 1, name: 'Ana', age: 17 } ]",
    "exit": 0
   },
   {
    "id": "p3_lte",
-   "code": "db.students.find({\"age\" : {\"$lte\" : 18}}, {\"_id\" : 0})",
-   "note": "",
-   "output": "[ { name: 'Ana', age: 17 }, { name: 'Ben', age: 18 } ]",
+   "part": 3,
+   "role": "cmd",
+   "code": "db.users.find({\"age\" : {\"$lte\" : 18}})",
+   "output": "[ { _id: 1, name: 'Ana', age: 17 }, { _id: 2, name: 'Ben', age: 18 } ]",
    "exit": 0
   },
   {
    "id": "p3_gt",
-   "code": "db.students.find({\"age\" : {\"$gt\" : 30}}, {\"_id\" : 0})",
-   "note": "",
-   "output": "[ { name: 'Eli', age: 31 } ]",
+   "part": 3,
+   "role": "cmd",
+   "code": "db.users.find({\"age\" : {\"$gt\" : 30}})",
+   "output": "[ { _id: 5, name: 'Eli', age: 31 } ]",
    "exit": 0
   },
   {
    "id": "p3_gte",
-   "code": "db.students.find({\"age\" : {\"$gte\" : 30}}, {\"_id\" : 0})",
-   "note": "",
-   "output": "[ { name: 'Dan', age: 30 }, { name: 'Eli', age: 31 } ]",
+   "part": 3,
+   "role": "cmd",
+   "code": "db.users.find({\"age\" : {\"$gte\" : 30}})",
+   "output": "[ { _id: 4, name: 'Dan', age: 30 }, { _id: 5, name: 'Eli', age: 31 } ]",
    "exit": 0
   },
   {
    "id": "p3_range",
-   "code": "db.students.find({\"age\" : {\"$gte\" : 18, \"$lte\" : 30}}, {\"_id\" : 0})",
-   "note": "",
-   "output": "[\n  { name: 'Ben', age: 18 },\n  { name: 'Cara', age: 24 },\n  { name: 'Dan', age: 30 }\n]",
+   "part": 3,
+   "role": "cmd",
+   "code": "db.users.find({\"age\" : {\"$gte\" : 18, \"$lte\" : 30}})",
+   "output": "[\n  { _id: 2, name: 'Ben', age: 18 },\n  { _id: 3, name: 'Cara', age: 24 },\n  { _id: 4, name: 'Dan', age: 30 }\n]",
    "exit": 0
   },
   {
-   "id": "p3_string_trap",
-   "code": "db.students.insertOne({\"name\":\"Fay\",\"age\":\"20\"}); db.students.find({\"age\" : {\"$gte\" : 18}}, {\"_id\" : 0, \"name\" : 1})",
-   "note": "trap",
-   "output": "[ { name: 'Ben' }, { name: 'Cara' }, { name: 'Dan' }, { name: 'Eli' } ]",
-   "exit": 0
-  },
-  {
-   "id": "p4_seed",
-   "code": "db.raffle.drop(); db.raffle.insertMany([{\"ticket_no\":725,\"winner\":false},{\"ticket_no\":542,\"winner\":false},{\"ticket_no\":390,\"winner\":false},{\"ticket_no\":111,\"winner\":true},{\"ticket_no\":222,\"winner\":false,\"claimed_by\":null},{\"ticket_no\":333,\"winner\":false,\"claimed_by\":\"Lia\"}])",
-   "note": "",
-   "output": "{\n  acknowledged: true,\n  insertedIds: {\n    '0': ObjectId('6ae45e42bf6f37c020544ca7'),\n    '1': ObjectId('6ae45e42bf6f37c020544ca8'),\n    '2': ObjectId('6ae45e42bf6f37c020544ca9'),\n    '3': ObjectId('6ae45e42bf6f37c020544caa'),\n    '4': ObjectId('6ae45e42bf6f37c020544cab'),\n    '5': ObjectId('6ae45e42bf6f37c020544cac')\n  }\n}",
+   "id": "p4_setup",
+   "part": 4,
+   "role": "setup",
+   "code": "use adbs_part4\ndb.dropDatabase()\ndb.raffle.insertMany([{\"_id\" : 1, \"ticket_no\" : 725, \"winner\" : false},\n  {\"_id\" : 2, \"ticket_no\" : 542, \"winner\" : false},\n  {\"_id\" : 3, \"ticket_no\" : 390, \"winner\" : false},\n  {\"_id\" : 4, \"ticket_no\" : 111, \"winner\" : true},\n  {\"_id\" : 5, \"ticket_no\" : 222, \"winner\" : false}])\ndb.users.insertMany([{\"_id\" : 1, \"name\" : \"Rhea\", \"salary\" : 8000},\n  {\"_id\" : 2, \"name\" : \"Mark\", \"salary\" : 10000},\n  {\"_id\" : 3, \"name\" : \"Liza\", \"salary\" : 15000}])",
+   "output": "{ acknowledged: true, insertedIds: { '0': 1, '1': 2, '2': 3 } }",
    "exit": 0
   },
   {
    "id": "p4_in",
-   "code": "db.raffle.find({\"ticket_no\" : {\"$in\" : [725, 542, 390]}}, {\"_id\" : 0})",
-   "note": "",
-   "output": "[\n  { ticket_no: 725, winner: false },\n  { ticket_no: 542, winner: false },\n  { ticket_no: 390, winner: false }\n]",
+   "part": 4,
+   "role": "cmd",
+   "code": "db.raffle.find({\"ticket_no\" : {\"$in\" : [725, 542, 390]}})",
+   "output": "[\n  { _id: 1, ticket_no: 725, winner: false },\n  { _id: 2, ticket_no: 542, winner: false },\n  { _id: 3, ticket_no: 390, winner: false }\n]",
    "exit": 0
   },
   {
    "id": "p4_or",
-   "code": "db.raffle.find({\"$or\" : [{\"ticket_no\" : 725}, {\"winner\" : true}]}, {\"_id\" : 0})",
-   "note": "",
-   "output": "[ { ticket_no: 725, winner: false }, { ticket_no: 111, winner: true } ]",
+   "part": 4,
+   "role": "cmd",
+   "code": "db.raffle.find({\"$or\" : [{\"ticket_no\" : 725}, {\"winner\" : true}]})",
+   "output": "[\n  { _id: 1, ticket_no: 725, winner: false },\n  { _id: 4, ticket_no: 111, winner: true }\n]",
    "exit": 0
   },
   {
-   "id": "p4_null",
-   "code": "db.raffle.find({\"claimed_by\" : null}, {\"_id\" : 0, \"ticket_no\" : 1})",
-   "note": "",
-   "output": "[\n  { ticket_no: 725 },\n  { ticket_no: 542 },\n  { ticket_no: 390 },\n  { ticket_no: 111 },\n  { ticket_no: 222 }\n]",
+   "id": "p4_not",
+   "part": 4,
+   "role": "cmd",
+   "code": "db.users.find({salary: {$not: {$gt: 10000}}}).pretty()",
+   "output": "[\n  { _id: 1, name: 'Rhea', salary: 8000 },\n  { _id: 2, name: 'Mark', salary: 10000 }\n]",
    "exit": 0
   },
   {
-   "id": "p4_null_strict",
-   "code": "db.raffle.find({\"claimed_by\" : {\"$type\" : \"null\"}}, {\"_id\" : 0, \"ticket_no\" : 1})",
-   "note": "",
-   "output": "[ { ticket_no: 222 } ]",
+   "id": "p5_setup",
+   "part": 5,
+   "role": "setup",
+   "code": "use adbs_part5\ndb.dropDatabase()",
+   "output": "{ ok: 1, dropped: 'adbs_part5' }",
    "exit": 0
   },
   {
-   "id": "p4_dollar_null",
-   "code": "db.raffle.find({\"claimed_by\" : {\"$null\" : true}})",
-   "note": "premise test",
-   "output": "MongoServerError: unknown operator: $null",
-   "exit": 1
-  },
-  {
-   "id": "p5_seed",
-   "code": "db.food.drop(); db.food.insertOne({\"_id\" : 1, \"fruit\" : [\"apple\", \"banana\", \"peach\"]}); db.food.insertOne({\"_id\" : 2, \"fruit\" : [\"apple\", \"kumquat\", \"orange\"]}); db.food.insertOne({\"_id\" : 3, \"fruit\" : [\"cherry\", \"banana\", \"apple\"]})",
-   "note": "",
+   "id": "p5_insert",
+   "part": 5,
+   "role": "cmd",
+   "code": "db.food.insertOne({\"_id\" : 1, \"fruit\" : [\"apple\", \"banana\", \"peach\"]})\ndb.food.insertOne({\"_id\" : 2, \"fruit\" : [\"apple\", \"kumquat\", \"orange\"]})\ndb.food.insertOne({\"_id\" : 3, \"fruit\" : [\"cherry\", \"banana\", \"apple\"]})",
    "output": "{ acknowledged: true, insertedId: 3 }",
    "exit": 0
   },
   {
+   "id": "p5_find_all",
+   "part": 5,
+   "role": "check",
+   "code": "db.food.find()",
+   "output": "[\n  { _id: 1, fruit: [ 'apple', 'banana', 'peach' ] },\n  { _id: 2, fruit: [ 'apple', 'kumquat', 'orange' ] },\n  { _id: 3, fruit: [ 'cherry', 'banana', 'apple' ] }\n]",
+   "exit": 0
+  },
+  {
    "id": "p5_scalar",
+   "part": 5,
+   "role": "cmd",
    "code": "db.food.find({\"fruit\" : \"banana\"})",
-   "note": "",
    "output": "[\n  { _id: 1, fruit: [ 'apple', 'banana', 'peach' ] },\n  { _id: 3, fruit: [ 'cherry', 'banana', 'apple' ] }\n]",
    "exit": 0
   },
   {
    "id": "p5_all",
-   "code": "db.food.find({\"fruit\" : {\"$all\" : [\"apple\", \"banana\"]}})",
-   "note": "",
+   "part": 5,
+   "role": "cmd",
+   "code": "db.food.find({fruit : {$all : [\"apple\", \"banana\"]}})",
    "output": "[\n  { _id: 1, fruit: [ 'apple', 'banana', 'peach' ] },\n  { _id: 3, fruit: [ 'cherry', 'banana', 'apple' ] }\n]",
    "exit": 0
   },
   {
    "id": "p5_index",
+   "part": 5,
+   "role": "cmd",
    "code": "db.food.find({\"fruit.2\" : \"peach\"})",
-   "note": "",
    "output": "[ { _id: 1, fruit: [ 'apple', 'banana', 'peach' ] } ]",
    "exit": 0
   },
   {
    "id": "p5_size",
-   "code": "db.food.find({\"fruit\" : {\"$size\" : 3}}).count()",
-   "note": "",
-   "output": "3",
+   "part": 5,
+   "role": "cmd",
+   "code": "db.food.find({\"fruit\" : {\"$size\" : 3}})",
+   "output": "[\n  { _id: 1, fruit: [ 'apple', 'banana', 'peach' ] },\n  { _id: 2, fruit: [ 'apple', 'kumquat', 'orange' ] },\n  { _id: 3, fruit: [ 'cherry', 'banana', 'apple' ] }\n]",
    "exit": 0
   },
   {
-   "id": "p5_push",
-   "code": "db.food.updateOne({\"_id\" : 2}, {\"$push\" : {\"fruit\" : \"mango\"}})",
-   "note": "",
-   "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
-   "exit": 0
-  },
-  {
-   "id": "p5_size_after_push",
-   "code": "db.food.find({\"fruit\" : {\"$size\" : 4}})",
-   "note": "",
-   "output": "[ { _id: 2, fruit: [ 'apple', 'kumquat', 'orange', 'mango' ] } ]",
-   "exit": 0
-  },
-  {
-   "id": "p5_size_range_trap",
-   "code": "db.food.find({\"fruit\" : {\"$size\" : {\"$gt\" : 3}}})",
-   "note": "expected error",
-   "output": "MongoServerError: Failed to parse $size. Expected a number in: $size: { $gt: 3 }",
-   "exit": 1
-  },
-  {
-   "id": "p5_push_each",
-   "code": "db.food.updateOne({\"_id\" : 3}, {\"$push\" : {\"fruit\" : {\"$each\" : [\"grape\", \"lime\"]}}}); db.food.findOne({\"_id\" : 3})",
-   "note": "",
-   "output": "{ _id: 3, fruit: [ 'cherry', 'banana', 'apple', 'grape', 'lime' ] }",
-   "exit": 0
-  },
-  {
-   "id": "p6_seed",
-   "code": "db.posts.drop(); db.posts.insertOne({\"_id\" : 1, \"title\" : \"ADBS\", \"comments\" : Array.from({length : 40}, (_, i) => \"c\" + (i + 1))})",
-   "note": "",
+   "id": "p6_setup",
+   "part": 6,
+   "role": "setup",
+   "code": "use adbs_part6\ndb.dropDatabase()\ndb.blog.posts.insertOne({\"_id\" : 1, \"title\" : \"ADBS\",\n  \"comments\" : Array.from({length : 40}, (_, i) => \"c\" + (i + 1))})\ndb.people.insertOne({\"_id\" : 1,\n  \"name\" : {\"first\" : \"John\", \"last\" : \"Escalona\"}, \"age\" : 45})",
    "output": "{ acknowledged: true, insertedId: 1 }",
    "exit": 0
   },
   {
    "id": "p6_slice_first",
-   "code": "db.posts.findOne({\"_id\" : 1}, {\"comments\" : {\"$slice\" : 3}})",
-   "note": "",
-   "output": "{ _id: 1, title: 'ADBS', comments: [ 'c1', 'c2', 'c3' ] }",
+   "part": 6,
+   "role": "cmd",
+   "code": "db.blog.posts.findOne({\"_id\" : 1}, {\"comments\" : {\"$slice\" : 10}})",
+   "output": "{\n  _id: 1,\n  title: 'ADBS',\n  comments: [\n    'c1',  'c2', 'c3',\n    'c4',  'c5', 'c6',\n    'c7',  'c8', 'c9',\n    'c10'\n  ]\n}",
    "exit": 0
   },
   {
    "id": "p6_slice_last",
-   "code": "db.posts.findOne({\"_id\" : 1}, {\"comments\" : {\"$slice\" : -3}})",
-   "note": "",
-   "output": "{ _id: 1, title: 'ADBS', comments: [ 'c38', 'c39', 'c40' ] }",
+   "part": 6,
+   "role": "cmd",
+   "code": "db.blog.posts.findOne({\"_id\" : 1}, {\"comments\" : {\"$slice\" : -10}})",
+   "output": "{\n  _id: 1,\n  title: 'ADBS',\n  comments: [\n    'c31', 'c32', 'c33',\n    'c34', 'c35', 'c36',\n    'c37', 'c38', 'c39',\n    'c40'\n  ]\n}",
    "exit": 0
   },
   {
    "id": "p6_slice_page",
-   "code": "db.posts.findOne({\"_id\" : 1}, {\"comments\" : {\"$slice\" : [23, 10]}})",
-   "note": "",
+   "part": 6,
+   "role": "cmd",
+   "code": "db.blog.posts.findOne({\"_id\" : 1}, {\"comments\" : {\"$slice\" : [23, 10]}})",
    "output": "{\n  _id: 1,\n  title: 'ADBS',\n  comments: [\n    'c24', 'c25', 'c26',\n    'c27', 'c28', 'c29',\n    'c30', 'c31', 'c32',\n    'c33'\n  ]\n}",
    "exit": 0
   },
   {
-   "id": "p6_people_seed",
-   "code": "db.people.drop(); db.people.insertOne({\"name\" : {\"first\" : \"John\", \"last\" : \"Escalona\"}, \"age\" : 45})",
-   "note": "",
-   "output": "{\n  acknowledged: true,\n  insertedId: ObjectId('6ae45e4ee74c6987dd544ca7')\n}",
-   "exit": 0
-  },
-  {
    "id": "p6_dot",
-   "code": "db.people.find({\"name.first\" : \"John\", \"name.last\" : \"Escalona\"}, {\"_id\" : 0})",
-   "note": "",
-   "output": "[ { name: { first: 'John', last: 'Escalona' }, age: 45 } ]",
-   "exit": 0
-  },
-  {
-   "id": "p6_exact_ok",
-   "code": "db.people.find({\"name\" : {\"first\" : \"John\", \"last\" : \"Escalona\"}}).count()",
-   "note": "",
-   "output": "1",
-   "exit": 0
-  },
-  {
-   "id": "p6_exact_order_trap",
-   "code": "db.people.find({\"name\" : {\"last\" : \"Escalona\", \"first\" : \"John\"}}).count()",
-   "note": "trap",
-   "output": "0",
-   "exit": 0
-  },
-  {
-   "id": "p6_set_embedded",
-   "code": "db.people.updateOne({\"name.first\" : \"John\"}, {\"$set\" : {\"name.last\" : \"Tagayon\"}})",
-   "note": "",
-   "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
+   "part": 6,
+   "role": "cmd",
+   "code": "db.people.find({\"name.first\" : \"John\", \"name.last\" : \"Escalona\"})",
+   "output": "[ { _id: 1, name: { first: 'John', last: 'Escalona' }, age: 45 } ]",
    "exit": 0
   }
  ]

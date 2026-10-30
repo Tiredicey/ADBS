@@ -267,7 +267,7 @@
   "time_s": 13.6143,
   "bar": 8,
   "event": "hero_text_in",
-  "detail": "$in \u00b7 $or \u00b7 null"
+  "detail": "$in \u00b7 $or \u00b7 $not"
  },
  {
   "time_s": 13.7143,
@@ -333,7 +333,7 @@
   "time_s": 17.0429,
   "bar": 10,
   "event": "hero_text_in",
-  "detail": "$all \u00b7 $size \u00b7 $push"
+  "detail": "$all \u00b7 $size \u00b7 fruit.2"
  },
  {
   "time_s": 17.1429,
