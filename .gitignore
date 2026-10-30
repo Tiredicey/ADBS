@@ -1,0 +1,9 @@
+node_modules/
+.env
+.dev.vars
+*.log
+.DS_Store
+~$*.pptx
+video/build/
+__pycache__/
+*.pyc
