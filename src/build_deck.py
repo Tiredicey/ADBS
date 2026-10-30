@@ -1,3 +1,4 @@
+import re
 import sys
 from pathlib import Path
 
@@ -18,7 +19,6 @@ OUT_TXT = RGBColor(0x9F, 0xE0, 0xC9)
 SIGNAL = RGBColor(0xD9, 0x48, 0x0F)
 AMBER = RGBColor(0xF2, 0xB2, 0x7A)
 TEAL = RGBColor(0x0B, 0x6E, 0x61)
-TRAP = RGBColor(0xB4, 0x23, 0x18)
 MUTED = RGBColor(0x4A, 0x58, 0x68)
 DIM = RGBColor(0x8A, 0x9B, 0xAD)
 COMMENT = RGBColor(0x7F, 0x91, 0xA4)
@@ -29,14 +29,15 @@ BLANK_FILL = RGBColor(0xFF, 0xF4, 0xE5)
 ERR = RGBColor(0xFF, 0xA9, 0x9E)
 
 SANS = "Arial"
-MONO = "Consolas"
+MONO = "Courier New"
 W, H = Inches(13.333), Inches(7.5)
 M = Inches(0.6)
+GROUP_PARTS = range(2, 9)
 
 
 class Deck:
-    def __init__(self, blueprint):
-        self.blueprint = blueprint
+    def __init__(self, group):
+        self.group = group
         self.prs = Presentation()
         self.prs.slide_width, self.prs.slide_height = W, H
         self.layout = self.prs.slide_layouts[6]
@@ -61,14 +62,14 @@ def box(slide, x, y, w, h, fill=None, line=None):
         shp.line.fill.background()
     else:
         shp.line.color.rgb = line
-        shp.line.width = Pt(1.25)
+        shp.line.width = Pt(1.5)
     shp.shadow.inherit = False
     return shp
 
 
 def text(slide, x, y, w, h, paras, size=18, color=INK, font=SANS, bold=False, align=PP_ALIGN.LEFT,
-         anchor=MSO_ANCHOR.TOP, spacing=1.1, pad=0.08):
-    tb = slide.shapes.add_textbox(x, y, w, h)
+         anchor=MSO_ANCHOR.TOP, spacing=1.1, pad=0.08, target=None):
+    tb = target or slide.shapes.add_textbox(x, y, w, h)
     tf = tb.text_frame
     tf.word_wrap = True
     tf.vertical_anchor = anchor
@@ -80,8 +81,7 @@ def text(slide, x, y, w, h, paras, size=18, color=INK, font=SANS, bold=False, al
         para = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         para.alignment = align
         para.line_spacing = spacing
-        segs = [{"t": p}] if isinstance(p, str) else p
-        for seg in segs:
+        for seg in ([{"t": p}] if isinstance(p, str) else p):
             r = para.add_run()
             r.text = seg["t"]
             f = r.font
@@ -92,7 +92,7 @@ def text(slide, x, y, w, h, paras, size=18, color=INK, font=SANS, bold=False, al
     return tb
 
 
-def fit_mono(lines, w_in, h_in, max_pt=18, min_pt=10):
+def fit_mono(lines, w_in, h_in, max_pt=18, min_pt=9):
     longest = max((len(line) for line in lines), default=1)
     by_w = (w_in * 72 - 14) / (0.602 * max(longest, 1))
     by_h = (h_in * 72 - 12) / (1.18 * max(len(lines), 1))
@@ -103,10 +103,14 @@ def prompt_lines(code):
     lines = code.split("\n")
     shown = []
     for i, line in enumerate(lines):
-        starts_stmt = line.strip() and not line.startswith(" ") and not line.startswith("//") and not line.startswith(("]", "}", ")"))
-        continues = i > 0 and lines[i - 1].rstrip().endswith((",", "(", "[", "{"))
-        shown.append(("> " + line) if starts_stmt and not continues else ("  " + line))
+        starts = line.strip() and not line.startswith(" ") and not line.startswith("//")
+        cont = i > 0 and lines[i - 1].rstrip().endswith((",", "(", "[", "{", ":", ";"))
+        shown.append(("> " + line) if starts and not cont else ("  " + line))
     return shown
+
+
+def code_lines(c):
+    return len(c.split("\n"))
 
 
 def code_panel(slide, x, y, w, h, body, label, color=PANEL_TXT, prompt=True):
@@ -128,32 +132,35 @@ def code_panel(slide, x, y, w, h, body, label, color=PANEL_TXT, prompt=True):
     text(slide, x + Inches(0.06), y + Inches(0.32), w - Inches(0.12), h - Inches(0.36), paras, size=pt, font=MONO, spacing=1.0)
 
 
-def blank_panel(slide, x, y, w, h, prompt):
-    box(slide, x, y, w, h, fill=BLANK_FILL, line=SIGNAL)
-    text(slide, x, y, w, h, [[{"t": "YOUR OUTPUT GOES HERE", "bold": True, "color": SIGNAL, "size": 14}], [{"t": prompt, "color": INK, "size": 13}]],
-         anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER, pad=0.25)
+def blank_panel(slide, x, y, w, h):
+    shp = box(slide, x, y, w, h, fill=BLANK_FILL, line=SIGNAL)
+    text(slide, x, y, w, h, [
+        [{"t": "PASTE YOUR SCREENSHOT HERE", "bold": True, "color": SIGNAL, "size": 16}],
+        [{"t": "1. Copy the command above into the MongoDB shell, press Enter.", "size": 12}],
+        [{"t": "2. Screenshot the result (Windows: Win + Shift + S).", "size": 12}],
+        [{"t": "3. Click this box, press Delete, then Ctrl + V.", "size": 12}],
+    ], anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER, pad=0.2, target=shp)
 
 
 def is_bp(deck, part):
-    return deck.blueprint and part["n"] != 1
+    return deck.group and part["n"] in GROUP_PARTS
 
 
-def header(slide, deck, part, title, soundbite, trap=False):
-    stripe = TRAP if trap else SIGNAL
-    box(slide, 0, 0, Inches(0.18), H, fill=stripe)
+def header(slide, deck, part, title, soundbite):
+    box(slide, 0, 0, Inches(0.18), H, fill=SIGNAL)
     tag = f"PART {part['n']}  ·  {part['title'].upper()}"
     if is_bp(deck, part):
-        tag += "  ·  BLUEPRINT  ·  OWNER: ____________"
-    text(slide, M, Inches(0.32), Inches(11.6), Inches(0.36), tag, size=12, color=stripe, bold=True)
+        tag += "  ·  TO DO"
+    text(slide, M, Inches(0.32), Inches(11.6), Inches(0.36), tag, size=12, color=SIGNAL, bold=True)
     text(slide, M, Inches(0.62), Inches(12.1), Inches(0.75), title, size=30, bold=True)
     text(slide, M, Inches(1.28), Inches(12.1), Inches(0.5), [[{"t": "Soundbite  ", "bold": True, "color": TEAL}, {"t": soundbite}]], size=16)
 
 
 def footer(slide, deck, source, verified=False):
     if source:
-        text(slide, M, Inches(7.02), Inches(8.4), Inches(0.36), "Source: " + source, size=10, color=MUTED)
+        text(slide, M, Inches(7.02), Inches(8.0), Inches(0.36), "Source: " + source, size=10, color=MUTED)
     if verified:
-        text(slide, Inches(8.9), Inches(7.02), Inches(3.75), Inches(0.36), "✓ " + VERIFIED, size=9, color=TEAL, align=PP_ALIGN.RIGHT)
+        text(slide, Inches(8.4), Inches(7.02), Inches(4.25), Inches(0.36), VERIFIED, size=9, color=TEAL, align=PP_ALIGN.RIGHT)
     text(slide, Inches(12.6), Inches(7.02), Inches(0.5), Inches(0.36), str(deck.count), size=10, color=MUTED, align=PP_ALIGN.RIGHT)
 
 
@@ -165,11 +172,8 @@ def bullets(slide, x, y, w, h, items, size=18):
     text(slide, x, y, w, h, [[{"t": "▸  ", "color": SIGNAL, "bold": True}, {"t": it}] for it in items], size=size, spacing=1.15)
 
 
-BP_RUN = "Run the command in mongosh or Compass (seed lines are in your guide), then paste the real output or a screenshot."
-
-
-def bp_notes(sl, lead):
-    return "BLUEPRINT. " + lead + " What to cover (in your own words): " + sl["notes"]
+def todo_notes(sl):
+    return "TO DO: read the handout page in the footer, then say this in your own words. " + sl["notes"]
 
 
 def slide_title(deck):
@@ -177,17 +181,42 @@ def slide_title(deck):
     box(s, 0, Inches(5.9), W, Inches(0.12), fill=SIGNAL)
     text(s, M, Inches(1.2), Inches(12), Inches(0.5), "IT2003 · ADVANCED DATABASE SYSTEMS", size=16, color=AMBER, bold=True)
     text(s, M, Inches(1.8), Inches(12), Inches(2.2), [[{"t": "MongoDB Commands"}], [{"t": "& Cloud Computing"}]], size=60, bold=True, color=WHITE, spacing=0.95)
-    sub = ("Group blueprint: Part 1 is complete. Parts 2-8 are frames for each owner to finish."
-           if deck.blueprint else "Every command on these slides was run on a real server. Including the one that failed.")
+    sub = ("SHARED GROUP DECK · Part 1 is done. Parts 2-8: find your part and fill the orange boxes."
+           if deck.group else "07, 08 and 09 Handouts")
     text(s, M, Inches(4.15), Inches(11.5), Inches(1.2), sub, size=22, color=PANEL_TXT)
-    text(s, M, Inches(6.25), Inches(12), Inches(0.9), [[{"t": "Group: ____________________    Section: ________    Date: ____________", "size": 16, "color": PANEL_TXT}], [{"t": VERIFIED, "size": 12, "color": OUT_TXT}]])
-    notes(s, "Open with the promise: every command on these slides was run on a real MongoDB server and we kept the real output, including one command from our own outline that failed (Part 4). Introduce the group and the eight parts.")
+    text(s, M, Inches(6.25), Inches(12), Inches(0.9), "Group: ____________________    Section: ________    Date: ____________", size=16, color=PANEL_TXT)
+    notes(s, "Introduce the group and the topic: MongoDB commands from the 07 and 08 handouts, and cloud computing from the 09 handout.")
+
+
+def slide_howto(deck):
+    s = deck.new()
+    box(s, 0, 0, Inches(0.18), H, fill=SIGNAL)
+    text(s, M, Inches(0.4), Inches(12), Inches(0.8), "How to do your part (read this first)", size=34, bold=True)
+    steps = [
+        ("Find your part", "Slide 3 lists the parts. Type your name next to yours."),
+        ("Look at Part 1", "Part 1 is finished. Make yours look like it."),
+        ("Open the MongoDB shell", "MongoDB Compass → connect → click  >_ Open MongoDB shell  (top right)."),
+        ("Run the setup", "Your part starts with a SETUP slide. Copy all its lines, paste in the shell, press Enter."),
+        ("Run each command", "Copy the command on each slide, paste in the shell, press Enter."),
+        ("Paste a screenshot", "Win + Shift + S, select the result, then click the orange box → Delete → Ctrl + V."),
+        ("Fill the blanks", "Replace every ______ with your own words. Use the handout page in the footer."),
+        ("Read the speaker notes", "View → Notes. They say what to explain. Practice saying the soundbite."),
+    ]
+    for i, (head, body) in enumerate(steps):
+        cx = M + Inches(6.15) * (i // 4)
+        cy = Inches(1.4) + Inches(1.32) * (i % 4)
+        box(s, cx, cy, Inches(5.95), Inches(1.18), fill=WHITE, line=RULE)
+        text(s, cx + Inches(0.1), cy, Inches(0.8), Inches(1.18), str(i + 1), size=40, bold=True, color=SIGNAL, anchor=MSO_ANCHOR.MIDDLE)
+        text(s, cx + Inches(0.85), cy + Inches(0.08), Inches(5.0), Inches(1.05), [[{"t": head, "bold": True, "size": 18}], [{"t": body, "size": 14, "color": MUTED}]])
+    text(s, M, Inches(6.75), Inches(12.1), Inches(0.4), "Only edit YOUR part. Changes save by themselves. Stuck? Message the group leader.", size=15, bold=True, color=SIGNAL)
+    footer(s, deck, "")
+    notes(s, "Instructions for group members. Delete this slide before presenting.")
 
 
 def slide_agenda(deck):
     s = deck.new()
     box(s, 0, 0, Inches(0.18), H, fill=SIGNAL)
-    text(s, M, Inches(0.5), Inches(12), Inches(0.8), "Eight parts, one database", size=34, bold=True)
+    text(s, M, Inches(0.5), Inches(12), Inches(0.8), "Eight parts", size=34, bold=True)
     col_w = Inches(5.9)
     for i, p in enumerate(PARTS):
         cx = M + (col_w + Inches(0.3)) * (i // 4)
@@ -197,7 +226,7 @@ def slide_agenda(deck):
         text(s, cx + Inches(0.95), cy + Inches(0.1), col_w - Inches(1.05), Inches(0.5), p["title"], size=16 if len(p["title"]) > 30 else 19, bold=True)
         text(s, cx + Inches(0.95), cy + Inches(0.55), col_w - Inches(1.05), Inches(0.55), p["kicker"], size=13, color=MUTED, font=MONO)
     footer(s, deck, "07, 08, 09 Handouts")
-    notes(s, "Roadmap. Parts 1-6: MongoDB commands from the 07 and 08 handouts. Parts 7-8: cloud computing from the 09 handout. Most parts end with a trap: the mistake that silently gives the wrong answer.")
+    notes(s, "Roadmap. Parts 1 to 6 are MongoDB commands from the 07 and 08 handouts. Parts 7 and 8 are cloud computing from the 09 handout.")
 
 
 def slide_roles(deck):
@@ -223,24 +252,7 @@ def slide_roles(deck):
             r = cell.text_frame.paragraphs[0].runs[0]
             r.font.size, r.font.name, r.font.color.rgb = Pt(14), SANS, INK
     footer(s, deck, "")
-    notes(s, "Fill in names before submission.")
-
-
-def slide_verify(deck):
-    s = deck.new()
-    box(s, 0, 0, Inches(0.18), H, fill=TEAL)
-    text(s, M, Inches(0.5), Inches(12), Inches(0.8), "How we checked every command", size=34, bold=True)
-    bullets(s, M, Inches(1.6), Inches(6.4), Inches(5), [
-        "Installed a real MongoDB server and the mongosh shell.",
-        "Ran each handout command, in slide order, on a fresh database.",
-        "Pasted the shell's real output. No retyping.",
-        "Script and raw results are in the repo: verification/.",
-        "One outline item failed: \"$null\". Part 4 shows the error.",
-    ], size=19)
-    code_panel(s, Inches(7.4), Inches(1.6), Inches(5.3), Inches(2.0), 'db.raffle.find({"claimed_by" : {"$null" : true}})', "THE COMMAND OUR OUTLINE ASKED FOR")
-    code_panel(s, Inches(7.4), Inches(3.7), Inches(5.3), Inches(1.4), "MongoServerError: unknown operator: $null", "WHAT THE SERVER SAID", prompt=False)
-    footer(s, deck, "verification/run_commands.py, verification/results.json")
-    notes(s, "Real server, real output, kept in the repo; anyone can rerun the script. The best result of checking was a failure: our outline listed dollar-null and the server rejected it. That is why Part 4 teaches the correct null query.")
+    notes(s, "Type each presenter's name.")
 
 
 def slide_divider(deck, part):
@@ -249,52 +261,61 @@ def slide_divider(deck, part):
     text(s, Inches(4.2), Inches(0.9), Inches(8.6), Inches(2.0), part["title"], size=40, bold=True, color=WHITE, anchor=MSO_ANCHOR.BOTTOM, spacing=0.95)
     text(s, Inches(4.2), Inches(3.0), Inches(8.6), Inches(0.6), part["kicker"], size=20, color=OUT_TXT, font=MONO)
     text(s, Inches(4.2), Inches(3.8), Inches(8.6), Inches(1.2), "“" + part["soundbite"] + "”", size=28, color=AMBER)
-    if deck.blueprint:
-        tail = "  (complete example part)" if part["n"] == 1 else ""
-        text(s, Inches(4.2), Inches(5.3), Inches(8.6), Inches(0.6), "Presenter: ____________________" + tail, size=20, color=PANEL_TXT)
-    n = f"Part {part['n']} soundbite: {part['soundbite']}  Optional crowd line: {part['meme']}"
+    text(s, Inches(4.2), Inches(5.3), Inches(8.6), Inches(0.6), "Presenter: ____________________", size=20, color=PANEL_TXT)
+    n = f"Part {part['n']}: {part['title']}. Soundbite: {part['soundbite']}"
     if is_bp(deck, part):
-        n = "BLUEPRINT. Write a 2-sentence intro. Keep the soundbite or write a better one (under 8 words). " + n
+        n = "TO DO: type your name above. Write a 2-sentence intro for your part here. " + n
     notes(s, n)
 
 
-def slide_cmd(deck, part, sl, two=False, trap=False):
+def slide_setup(deck, part):
+    s = deck.new()
+    header(s, deck, part, "SETUP: run this first", "Copy everything in the black box into the MongoDB shell.")
+    lines = re.sub(r"\n\s+", " ", part["setup"]).split("\n")
+    body = "\n".join(lines)
+    code_panel(s, M, Inches(1.95), Inches(12.1), Inches(4.0), body, "COPY ALL OF THIS, PASTE IN THE SHELL, PRESS ENTER", prompt=False)
+    bullets(s, M, Inches(6.05), Inches(12.1), Inches(0.9), [
+        "This creates the practice data for your part. You can run it again any time to start over.",
+        "Delete this slide before presenting.",
+    ], size=15)
+    footer(s, deck, part["source"])
+    notes(s, "Setup only. Delete this slide before presenting.")
+
+
+def slide_cmd(deck, part, sl, two=False):
     s = deck.new()
     bp = is_bp(deck, part)
-    header(s, deck, part, sl["title"], sl["soundbite"], trap=trap)
-    top = Inches(1.9)
+    header(s, deck, part, sl["title"], sl["soundbite"])
+    top, bottom = Inches(1.9), Inches(6.9)
     if two:
-        lw, gap, ch = Inches(6.0), Inches(0.13), Inches(1.55)
+        lw, gap = Inches(6.0), Inches(0.13)
+        n = max(code_lines(sl["code"]), code_lines(sl["code2"]))
+        ch = Inches(min(2.6, 0.5 + 0.19 * n))
+        oh = bottom - top - ch - Inches(0.1)
         for j, (c, o) in enumerate(((sl["code"], sl["output"]), (sl["code2"], sl["output2"]))):
             x = M + (lw + gap) * j
             code_panel(s, x, top, lw, ch, c, "COMMAND")
             if bp:
-                blank_panel(s, x, top + ch + Inches(0.1), lw, Inches(3.3), BP_RUN)
+                blank_panel(s, x, top + ch + Inches(0.1), lw, oh)
             else:
-                code_panel(s, x, top + ch + Inches(0.1), lw, Inches(3.3), o, "REAL OUTPUT", color=OUT_TXT, prompt=False)
+                code_panel(s, x, top + ch + Inches(0.1), lw, oh, o, "OUTPUT", color=OUT_TXT, prompt=False)
     else:
         lw = Inches(7.7)
-        lines = sl["code"].count("\n") + 1
-        ch = Inches(min(2.6, 0.55 + 0.27 * lines))
+        ch = Inches(min(2.6, 0.5 + 0.21 * code_lines(sl["code"])))
         code_panel(s, M, top, lw, ch, sl["code"], "COMMAND")
         oy = top + ch + Inches(0.1)
-        oh = Inches(6.9) - oy
         if bp:
-            blank_panel(s, M, oy, lw, oh, BP_RUN)
+            blank_panel(s, M, oy, lw, bottom - oy)
         else:
-            code_panel(s, M, oy, lw, oh, sl["output"], "REAL OUTPUT", color=OUT_TXT, prompt=False)
+            code_panel(s, M, oy, lw, bottom - oy, sl["output"], "OUTPUT", color=OUT_TXT, prompt=False)
         px = M + lw + Inches(0.3)
         pw = W - px - Inches(0.45)
         if bp:
-            bullets(s, px, top, pw, Inches(4.9), ["Explain in your own words:"] + ["______________________" for _ in sl["points"]] + ["Hint: speaker notes."], size=17)
-        elif trap:
-            box(s, px, top, pw, Inches(0.42), fill=TRAP)
-            text(s, px, top, pw, Inches(0.42), "WHAT GOES WRONG", size=13, bold=True, color=WHITE, anchor=MSO_ANCHOR.MIDDLE, pad=0.12)
-            bullets(s, px, top + Inches(0.55), pw, Inches(4.4), sl["points"], size=18)
+            bullets(s, px, top, pw, Inches(4.9), ["Explain in your own words:"] + ["______________________" for _ in sl["points"]], size=17)
         else:
             bullets(s, px, top, pw, Inches(4.9), sl["points"], size=18)
     footer(s, deck, sl["source"], verified=not bp)
-    notes(s, bp_notes(sl, "Run the command and paste your real output.") if bp else sl["notes"])
+    notes(s, todo_notes(sl) if bp else sl["notes"])
 
 
 def slide_table(deck, part, sl):
@@ -302,10 +323,10 @@ def slide_table(deck, part, sl):
     bp = is_bp(deck, part)
     header(s, deck, part, sl["title"], sl["soundbite"])
     rows, cols = len(sl["rows"]) + 1, len(sl["headers"])
-    big = cols <= 2
+    big = cols <= 3
     tw = W - M - Inches(0.6)
     room = 6.75 - 2.0 - (0.75 if sl.get("points") else 0)
-    rh = Inches(min(0.62 if big else 0.95, room / rows))
+    rh = Inches(min(0.7 if big else 0.95, room / rows))
     tbl = s.shapes.add_table(rows, cols, M, Inches(2.0), tw, rh * rows).table
     for c, hd in enumerate(sl["headers"]):
         cell = tbl.cell(0, c)
@@ -326,11 +347,11 @@ def slide_table(deck, part, sl):
             run.font.size = Pt(22 if big else 15)
             run.font.name = MONO if (c == 0 and val.startswith("$")) else SANS
             run.font.bold = c == 0
-            run.font.color.rgb = SIGNAL if (c == 0 and not big) else INK
+            run.font.color.rgb = SIGNAL if c == 0 and cols > 2 else INK
     if sl.get("points"):
         bullets(s, M, Inches(2.0) + rh * rows + Inches(0.25), tw, Inches(0.8), sl["points"], size=17)
     footer(s, deck, sl["source"])
-    notes(s, bp_notes(sl, "Fill the blank cells from " + sl["source"] + ".") if bp else sl["notes"])
+    notes(s, ("TO DO: fill the orange cells from the handout page in the footer. " + todo_notes(sl)) if bp else sl["notes"])
 
 
 def slide_text(deck, part, sl):
@@ -340,32 +361,7 @@ def slide_text(deck, part, sl):
     items = ["______________________________________________" for _ in sl["body"]] if bp else sl["body"]
     bullets(s, M, Inches(2.1), Inches(12), Inches(4.6), items, size=22)
     footer(s, deck, sl["source"])
-    notes(s, bp_notes(sl, "Write each bullet from " + sl["source"] + ".") if bp else sl["notes"])
-
-
-def slide_stack(deck, part, sl):
-    s = deck.new()
-    bp = is_bp(deck, part)
-    header(s, deck, part, sl["title"], sl["soundbite"])
-    layers = ["Application", "Data", "Runtime / Platform", "Operating system", "Servers · Storage · Network"]
-    owners = {"SaaS": [0, 0, 0, 0, 0], "PaaS": [1, 1, 0, 0, 0], "IaaS": [1, 1, 1, 1, 0]}
-    text(s, M, Inches(2.05), Inches(3.2), Inches(0.4), "Layer", size=14, bold=True, color=MUTED)
-    for i, layer in enumerate(layers):
-        text(s, M, Inches(2.5) + Inches(0.8) * i, Inches(3.2), Inches(0.7), layer, size=17, bold=True, anchor=MSO_ANCHOR.MIDDLE)
-    for j, (name, ow) in enumerate(owners.items()):
-        cx = Inches(4.0) + Inches(2.85) * j
-        text(s, cx, Inches(2.05), Inches(2.65), Inches(0.4), name, size=18, bold=True, color=SIGNAL, align=PP_ALIGN.CENTER)
-        for i, o in enumerate(ow):
-            y = Inches(2.5) + Inches(0.8) * i
-            if bp:
-                box(s, cx, y, Inches(2.65), Inches(0.7), fill=BLANK_FILL, line=SIGNAL)
-                text(s, cx, y, Inches(2.65), Inches(0.7), "You / Provider?", size=14, color=MUTED, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-            else:
-                box(s, cx, y, Inches(2.65), Inches(0.7), fill=TEAL if o else PANEL)
-                text(s, cx, y, Inches(2.65), Inches(0.7), "You" if o else "Provider", size=16, bold=True, color=WHITE, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    text(s, M, Inches(6.55), Inches(12), Inches(0.4), "SaaS users still control some settings (09 Handout). The layer split is our summary of the handout definitions.", size=12, color=MUTED)
-    footer(s, deck, sl["source"])
-    notes(s, bp_notes(sl, "Decide each box: You or Provider.") if bp else sl["notes"])
+    notes(s, todo_notes(sl) if bp else sl["notes"])
 
 
 def slide_benefits(deck, part, sl):
@@ -378,63 +374,65 @@ def slide_benefits(deck, part, sl):
         cy = Inches(2.0) + Inches(0.95) * (i % 5)
         text(s, cx, cy, Inches(0.7), Inches(0.8), str(i + 1), size=30, bold=True, color=SIGNAL, anchor=MSO_ANCHOR.MIDDLE)
         body = ([[{"t": "________________", "bold": True, "size": 18}], [{"t": "one line from 09 Handout p.1-2", "size": 13, "color": MUTED}]]
-                if bp else [[{"t": name, "bold": True, "size": 19}], [{"t": desc, "size": 14, "color": MUTED}]])
+                if bp else [[{"t": name, "bold": True, "size": 17 if len(name) > 26 else 19}], [{"t": desc, "size": 14, "color": MUTED}]])
         text(s, cx + Inches(0.7), cy, cw - Inches(0.7), Inches(0.8), body)
     footer(s, deck, sl["source"])
-    notes(s, bp_notes(sl, "List the 10 benefits in handout order.") if bp else sl["notes"])
+    notes(s, ("TO DO: list the 10 benefits in handout order. " + todo_notes(sl)) if bp else sl["notes"])
 
 
 def slide_cheatsheet(deck):
     s = deck.new()
     box(s, 0, 0, Inches(0.18), H, fill=SIGNAL)
-    text(s, M, Inches(0.45), Inches(12), Inches(0.8), "One-slide cheat sheet", size=34, bold=True)
+    text(s, M, Inches(0.45), Inches(12), Inches(0.8), "Summary of commands", size=34, bold=True)
     for i, (k, v) in enumerate(CHEATSHEET):
         y = Inches(1.45) + Inches(0.6) * i
         box(s, M, y, Inches(12.1), Inches(0.52), fill=WHITE if i % 2 == 0 else ROW_ALT)
         text(s, M + Inches(0.1), y, Inches(2.0), Inches(0.52), k, size=17, bold=True, color=SIGNAL, anchor=MSO_ANCHOR.MIDDLE)
-        text(s, M + Inches(2.1), y, Inches(9.9), Inches(0.52), v, size=16, font=MONO, anchor=MSO_ANCHOR.MIDDLE)
-    footer(s, deck, "Parts 1-8")
-    notes(s, "Leave this up during questions: every command from today on one screen.")
+        text(s, M + Inches(2.1), y, Inches(9.9), Inches(0.52), v, size=15, font=MONO, anchor=MSO_ANCHOR.MIDDLE)
+    footer(s, deck, "07, 08, 09 Handouts")
+    notes(s, "Leave this up during questions.")
 
 
 def slide_refs(deck):
     s = deck.new()
     box(s, 0, 0, Inches(0.18), H, fill=INK)
     text(s, M, Inches(0.45), Inches(12), Inches(0.8), "References", size=34, bold=True)
-    text(s, M, Inches(1.4), Inches(12.1), Inches(5.4), [[{"t": r}] for r in REFERENCES], size=14, spacing=1.2)
+    text(s, M, Inches(1.4), Inches(12.1), Inches(5.4), [[{"t": r}] for r in REFERENCES], size=16, spacing=1.3)
     footer(s, deck, "")
-    notes(s, "Handouts first, then the MongoDB manual pages used for $push and null, then the live server run. Meme references appear only in speaker notes, dated and sourced.")
+    notes(s, "Sources: the three handouts and the references they cite.")
 
 
 KINDS = {
     "cmd": lambda d, p, sl: slide_cmd(d, p, sl),
     "cmd2": lambda d, p, sl: slide_cmd(d, p, sl, two=True),
-    "trap": lambda d, p, sl: slide_cmd(d, p, sl, trap=True),
     "table": slide_table,
     "text": slide_text,
-    "stack": slide_stack,
     "benefits": slide_benefits,
 }
 
 
-def build(blueprint, out):
-    d = Deck(blueprint)
+def build(group, out):
+    d = Deck(group)
     slide_title(d)
-    slide_agenda(d)
+    if group:
+        slide_howto(d)
     slide_roles(d)
-    slide_verify(d)
+    slide_agenda(d)
     for part in PARTS:
         slide_divider(d, part)
+        if is_bp(d, part) and part.get("setup"):
+            slide_setup(d, part)
         for sl in part["slides"]:
             KINDS[sl["kind"]](d, part, sl)
     slide_cheatsheet(d)
     slide_refs(d)
+    out.parent.mkdir(parents=True, exist_ok=True)
     d.prs.save(out)
     return d.count
 
 
 if __name__ == "__main__":
     root = Path(__file__).resolve().parent.parent
-    n1 = build(False, root / "01_FULL_DECK" / "ADBS_MongoDB_Cloud_FULL.pptx")
-    n2 = build(True, root / "02_BLUEPRINT_DECK" / "ADBS_MongoDB_Cloud_BLUEPRINT.pptx")
-    print("full slides", n1, "blueprint slides", n2)
+    n1 = build(False, root / "01_FULL_DECK" / "ADBS_FULL_answer_key.pptx")
+    n2 = build(True, root / "02_GROUP_DECK" / "ADBS_GROUP_DECK.pptx")
+    print("full", n1, "group", n2)
