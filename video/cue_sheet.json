@@ -1,0 +1,620 @@
+[
+ {
+  "time_s": 0.0,
+  "bar": 0,
+  "event": "bar",
+  "detail": "chord Dm"
+ },
+ {
+  "time_s": 0.0,
+  "bar": 0,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 0.0,
+  "bar": 0,
+  "event": "hero_text_in",
+  "detail": "FREE FALL"
+ },
+ {
+  "time_s": 0.4286,
+  "bar": 0,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 0.8571,
+  "bar": 0,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 1.2857,
+  "bar": 0,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 1.7143,
+  "bar": 1,
+  "event": "bar",
+  "detail": "chord Dm"
+ },
+ {
+  "time_s": 1.7143,
+  "bar": 1,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 2.1429,
+  "bar": 1,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 2.5714,
+  "bar": 1,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 3.0,
+  "bar": 1,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 3.3286,
+  "bar": 2,
+  "event": "hero_text_in",
+  "detail": "insertOne \u00b7 deleteMany"
+ },
+ {
+  "time_s": 3.4286,
+  "bar": 2,
+  "event": "bar",
+  "detail": "chord Bb"
+ },
+ {
+  "time_s": 3.4286,
+  "bar": 2,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 3.8571,
+  "bar": 2,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 4.2857,
+  "bar": 2,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 4.7143,
+  "bar": 2,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 5.1429,
+  "bar": 3,
+  "event": "bar",
+  "detail": "chord Bb"
+ },
+ {
+  "time_s": 5.1429,
+  "bar": 3,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 5.5714,
+  "bar": 3,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 6.0,
+  "bar": 3,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 6.4286,
+  "bar": 3,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 6.7571,
+  "bar": 4,
+  "event": "hero_text_in",
+  "detail": "findOne \u00b7 updateMany"
+ },
+ {
+  "time_s": 6.8571,
+  "bar": 4,
+  "event": "bar",
+  "detail": "chord Gm"
+ },
+ {
+  "time_s": 6.8571,
+  "bar": 4,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 7.2857,
+  "bar": 4,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 7.7143,
+  "bar": 4,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 8.1429,
+  "bar": 4,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 8.5714,
+  "bar": 5,
+  "event": "bar",
+  "detail": "chord Gm"
+ },
+ {
+  "time_s": 8.5714,
+  "bar": 5,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 9.0,
+  "bar": 5,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 9.4286,
+  "bar": 5,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 9.8571,
+  "bar": 5,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 10.1857,
+  "bar": 6,
+  "event": "hero_text_in",
+  "detail": "$lt  $lte  $gt  $gte"
+ },
+ {
+  "time_s": 10.2857,
+  "bar": 6,
+  "event": "bar",
+  "detail": "chord A"
+ },
+ {
+  "time_s": 10.2857,
+  "bar": 6,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 10.7143,
+  "bar": 6,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 11.1429,
+  "bar": 6,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 11.5714,
+  "bar": 6,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 12.0,
+  "bar": 7,
+  "event": "bar",
+  "detail": "chord A"
+ },
+ {
+  "time_s": 12.0,
+  "bar": 7,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 12.4286,
+  "bar": 7,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 12.8571,
+  "bar": 7,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 13.2857,
+  "bar": 7,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 13.6143,
+  "bar": 8,
+  "event": "hero_text_in",
+  "detail": "$in \u00b7 $or \u00b7 null"
+ },
+ {
+  "time_s": 13.7143,
+  "bar": 8,
+  "event": "bar",
+  "detail": "chord Dm"
+ },
+ {
+  "time_s": 13.7143,
+  "bar": 8,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 14.1429,
+  "bar": 8,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 14.5714,
+  "bar": 8,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 15.0,
+  "bar": 8,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 15.4286,
+  "bar": 9,
+  "event": "bar",
+  "detail": "chord Dm"
+ },
+ {
+  "time_s": 15.4286,
+  "bar": 9,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 15.8571,
+  "bar": 9,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 16.2857,
+  "bar": 9,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 16.7143,
+  "bar": 9,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 17.0429,
+  "bar": 10,
+  "event": "hero_text_in",
+  "detail": "$all \u00b7 $size \u00b7 $push"
+ },
+ {
+  "time_s": 17.1429,
+  "bar": 10,
+  "event": "bar",
+  "detail": "chord Bb"
+ },
+ {
+  "time_s": 17.1429,
+  "bar": 10,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 17.5714,
+  "bar": 10,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 18.0,
+  "bar": 10,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 18.4286,
+  "bar": 10,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 18.8571,
+  "bar": 11,
+  "event": "bar",
+  "detail": "chord Bb"
+ },
+ {
+  "time_s": 18.8571,
+  "bar": 11,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 19.2857,
+  "bar": 11,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 19.7143,
+  "bar": 11,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 20.1429,
+  "bar": 11,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 20.4714,
+  "bar": 12,
+  "event": "hero_text_in",
+  "detail": "$slice \u00b7 name.first"
+ },
+ {
+  "time_s": 20.5714,
+  "bar": 12,
+  "event": "bar",
+  "detail": "chord Gm"
+ },
+ {
+  "time_s": 20.5714,
+  "bar": 12,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 21.0,
+  "bar": 12,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 21.4286,
+  "bar": 12,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 21.8571,
+  "bar": 12,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 22.2857,
+  "bar": 13,
+  "event": "bar",
+  "detail": "chord Gm"
+ },
+ {
+  "time_s": 22.2857,
+  "bar": 13,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 22.7143,
+  "bar": 13,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 23.1429,
+  "bar": 13,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 23.5714,
+  "bar": 13,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 23.9,
+  "bar": 14,
+  "event": "hero_text_in",
+  "detail": "Public \u00b7 Private \u00b7 Hybrid"
+ },
+ {
+  "time_s": 24.0,
+  "bar": 14,
+  "event": "bar",
+  "detail": "chord A"
+ },
+ {
+  "time_s": 24.0,
+  "bar": 14,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 24.4286,
+  "bar": 14,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 24.8571,
+  "bar": 14,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 25.2857,
+  "bar": 14,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 25.7143,
+  "bar": 15,
+  "event": "bar",
+  "detail": "chord A"
+ },
+ {
+  "time_s": 25.7143,
+  "bar": 15,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 26.1429,
+  "bar": 15,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 26.5714,
+  "bar": 15,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 27.0,
+  "bar": 15,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 27.3286,
+  "bar": 16,
+  "event": "hero_text_in",
+  "detail": "SaaS \u00b7 PaaS \u00b7 IaaS"
+ },
+ {
+  "time_s": 27.4286,
+  "bar": 16,
+  "event": "bar",
+  "detail": "chord Dm"
+ },
+ {
+  "time_s": 27.4286,
+  "bar": 16,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 27.8571,
+  "bar": 16,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 28.2857,
+  "bar": 16,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 28.7143,
+  "bar": 16,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 29.1429,
+  "bar": 17,
+  "event": "bar",
+  "detail": "chord Dm"
+ },
+ {
+  "time_s": 29.1429,
+  "bar": 17,
+  "event": "heartbeat_kick",
+  "detail": "beat 1"
+ },
+ {
+  "time_s": 29.5714,
+  "bar": 17,
+  "event": "heartbeat_kick",
+  "detail": "beat 2"
+ },
+ {
+  "time_s": 30.0,
+  "bar": 17,
+  "event": "heartbeat_kick",
+  "detail": "beat 3"
+ },
+ {
+  "time_s": 30.4286,
+  "bar": 17,
+  "event": "heartbeat_kick",
+  "detail": "beat 4"
+ },
+ {
+  "time_s": 30.7571,
+  "bar": 18,
+  "event": "hero_text_in",
+  "detail": "ADBS"
+ },
+ {
+  "time_s": 30.8571,
+  "bar": 18,
+  "event": "bar",
+  "detail": "chord Dm"
+ },
+ {
+  "time_s": 30.8571,
+  "bar": 18,
+  "event": "final_hit",
+  "detail": "exit station, Dm resolve"
+ },
+ {
+  "time_s": 32.5714,
+  "bar": 19,
+  "event": "bar",
+  "detail": "chord Dm"
+ }
+]
