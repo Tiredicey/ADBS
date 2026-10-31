@@ -1,4 +1,3 @@
-import re
 import sys
 from pathlib import Path
 
@@ -271,8 +270,7 @@ def slide_divider(deck, part):
 def slide_setup(deck, part):
     s = deck.new()
     header(s, deck, part, "SETUP: run this first", "Copy everything in the black box into the MongoDB shell.")
-    lines = re.sub(r"\n\s+", " ", part["setup"]).split("\n")
-    body = "\n".join(lines)
+    body = part["setup"]
     code_panel(s, M, Inches(1.95), Inches(12.1), Inches(4.0), body, "COPY ALL OF THIS, PASTE IN THE SHELL, PRESS ENTER", prompt=False)
     bullets(s, M, Inches(6.05), Inches(12.1), Inches(0.9), [
         "This creates the practice data for your part. You can run it again any time to start over.",
