@@ -329,8 +329,8 @@ def words(text):
     return len(text.split())
 
 
-def part_words(part):
-    return words(part["intro"]) + sum(words(" ".join(sl["say"])) for sl in part["slides"])
+def part_words(part, removed=()):
+    return words(part["intro"]) + sum(words(" ".join(sl["say"])) for sl in part["slides"] if sl["title"] not in removed)
 
 
 if __name__ == "__main__":

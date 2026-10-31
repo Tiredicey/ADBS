@@ -578,7 +578,7 @@ def slide_divider(deck, part, nslides, seconds):
     text(s, 4.2, 3.0, 8.6, 1.0, part["kicker"], size=FLOOR, color="OUT")
     text(s, 4.2, 4.15, 8.6, 1.1, "“" + part["takeaway"] + "”", size=32, color="AMBER")
     text(s, 4.2, 5.55, 8.6, 0.5, f"{nslides} slides · about {seconds // 60} min {seconds % 60:02d} s", size=22, color="COMMENT", name="EXEMPT_PROGRESS")
-    timing = f"\n\n(Whole part: {part_words(part)} words, about {seconds // 60} min {seconds % 60:02d} s at a calm 130 words a minute. Limit: 3 minutes.)"
+    timing = f"\n\n(Whole part: {part_words(part, REMOVED_SLIDES)} words, about {seconds // 60} min {seconds % 60:02d} s at a calm 130 words a minute. Limit: 3 minutes.)"
     notes(s, "SAY:\n" + part["intro"] + timing)
 
 
@@ -625,7 +625,7 @@ def build(group, out):
     for part in PARTS:
         specs = [sp for sl in part["slides"] for sp in plan(d, part, sl)]
         n = len(specs) + 1
-        w = part_words(part)
+        w = part_words(part, REMOVED_SLIDES)
         sec = round(w / 130 * 60)
         slide_divider(d, part, n, sec)
         if group and part["n"] in GROUP_PARTS and part.get("setup"):
