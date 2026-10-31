@@ -63,7 +63,8 @@ EMPTY = "// no output: the collection is empty"
 # The user's own edits to the shared deck (2026-10-31), kept so a rebuild never undoes them.
 SHOW_VIDEO = False          # user deleted the opener slide; set True to put it back
 SHOW_REFERENCES = False     # user deleted the References slide
-REMOVED_SLIDES = {"Tables are collections. Rows are documents."}   # user deleted this Part 1 slide
+REMOVED_SLIDES = set()      # restored "Tables are collections": the Part 1 topic list requires it
+SECTION = "Section 3.1A"
 NO_BLANKS_FOR = ("Presenter", "Group:", "Section:", "Date:")       # no name/date fill-ins anywhere
 FLOW_MAX = 8        # output lines in a BEFORE/AFTER panel: label + check + 8 + band fit 5.65 in
 KIND_COLOR = {"code": "PANEL_TXT", "out": "OUT", "error": "ERR", "comment": "COMMENT"}
@@ -262,7 +263,7 @@ def draw_panel(slide, y, p, deck):
         paras = [[{"t": p["label"] + "  ·  PASTE YOUR SCREENSHOT HERE", "bold": True, "color": "SIGNAL", "size": 22}]]
         if paste.get("run"):
             paras.append([{"t": "Run:  ", "bold": True, "size": 18}, {"t": paste["run"].replace("\n", " "), "font": MONO, "size": 18}])
-        paras.append([{"t": "Screenshot " + paste["what"] + " (Win + Shift + S). Click this box's edge, press Delete, then Ctrl + V.", "size": 18}])
+        paras.append([{"t": "Zoom in (Ctrl + =). Screenshot " + paste["what"] + " (Win + Shift + S). Click this box's edge, Delete, Ctrl + V.", "size": 18}])
         text(slide, 0, 0, 0, 0, paras, pad=0.15, target=box)
         return h
     rect(slide, M, y, CW, h, fill="PANEL")
@@ -291,18 +292,24 @@ def flow_panels(sl, deck):
     code = STEP[sl["cmd"]]["code"].split("\n")
     pre, mid = split_before(sl["say"][0])
     note_b = [(sl["before_note"], "comment")] if sl.get("before_note") else []
+    if sl.get("before_same"):
+        b_lines, b_kind = ["// same as the last slide"], "comment"
     note_r = [(sl["reply_note"], "comment")] if sl.get("reply_note") else []
     before = {"label": "1  BEFORE", "check": STEP[sl["before"]]["code"], "lines": note_b + [(x, b_kind) for x in b_lines],
               "marks": {"gone": sl.get("gone", [])}, "say": pre}
     command = {"label": "2  COMMAND → REPLY", "lines": [(x, "code") for x in code] + note_r + [(x, r_kind) for x in r_lines], "say": mid}
     after = {"label": "3  AFTER", "check": STEP[sl["after"]]["code"], "lines": [(x, a_kind) for x in a_lines],
              "marks": {"new": sl.get("new", [])}, "say": sl["say"][1]}
+    if sl.get("before_same"):
+        before.pop("check")
     if not deck.group:
-        deck.wanted |= {("gone", m) for m in sl.get("gone", [])} | {("new", m) for m in sl.get("new", [])}
+        if not sl.get("before_same"):
+            deck.wanted |= {("gone", m) for m in sl.get("gone", [])}
+        deck.wanted |= {("new", m) for m in sl.get("new", [])}
         return [before, command, after]
-    return [paste_of(before),
+    return [before if sl.get("before_same") else paste_of(before),
             {"label": "2  COMMAND", "lines": [(x, "code") for x in code], "say": mid},
-            {"label": "2  REPLY", "paste": {"n": len(r_lines), "run": None, "what": "the shell's reply to the command above"}, "say": ""},
+            {"label": "2  REPLY", "paste": {"n": len(r_lines), "run": None, "what": "the reply"}, "say": ""},
             paste_of(after)]
 
 
@@ -317,7 +324,7 @@ def find_panels(sl, deck, data=False):
         o_lines, kind = shape_output(fid, max_lines=room)
         if deck.group:
             out += [{"label": "COMMAND", "lines": note + [(x, "code") for x in code], "say": says[j]},
-                    {"label": "RESULT", "paste": {"n": len(o_lines), "run": None, "what": "the result of the command above"}, "say": ""}]
+                    {"label": "RESULT", "paste": {"n": len(o_lines), "run": None, "what": "the result"}, "say": ""}]
         else:
             out.append({"label": "COMMAND → RESULT", "lines": note + [(x, "code") for x in code] + [(x, kind) for x in o_lines], "say": says[j]})
     return out
@@ -550,6 +557,7 @@ def slide_title(deck):
     text(s, M, 1.6, CW, 2.4, [[{"t": "MongoDB Commands"}], [{"t": "& Cloud Computing"}]], size=60, bold=True, color="WHITE", spacing=0.95)
     sub = "Shared group deck · Part 1 is done · Parts 2-8: fill the orange boxes" if deck.group else "07, 08 and 09 Handouts"
     text(s, M, 3.9, CW, 1.4, sub, size=FLOOR, color="PANEL_TXT")
+    text(s, M, 6.15, CW, 0.7, SECTION, size=32, bold=True, color="WHITE")
     notes(s, "SAY: Good day. We are [group name]. Our topic is MongoDB commands and cloud computing, from the 07, 08 and 09 handouts. Each of us has 3 minutes.")
 
 
@@ -562,7 +570,7 @@ def slide_howto(deck):
         ("Open the MongoDB shell", "MongoDB Compass → Connect → click  >_ Open MongoDB shell."),
         ("Run your SETUP slide", "Copy all its lines, paste in the shell, press Enter."),
         ("Go box by box, top to bottom", "Each orange box says what to run. Order: 1 BEFORE, 2 COMMAND, 3 AFTER."),
-        ("Paste a screenshot", "Win + Shift + S. Click the box's edge, press Delete, then Ctrl + V."),
+("Paste a screenshot", "In Compass press Ctrl and = until the text is big. Win + Shift + S, then click the box's edge, Delete, Ctrl + V."),
         ("Fill the blanks", "Replace every ______ using the handout page in the footer."),
         ("Practice the script", "View → Notes. Read it aloud with a timer. Stay under 3 minutes."),
     ]
