@@ -104,8 +104,8 @@ def _render(v, ind, width, compact, pre="", suf=""):
     kind, body = v
     if len(one) <= width or kind == "atom":
         return [one]
-    if compact and _flat(v) and body:
-        raw = [f"{k}: {x[1]}" for k, x in body] if kind == "obj" else [x[1] for x in body]
+    if compact and body:
+        raw = [f"{k}: {_inline(x)}" for k, x in body] if kind == "obj" else [_inline(x) for x in body]
         opener, closer = ("{ ", " }") if kind == "obj" else ("[ ", " ]")
         pieces = [p + "," for p in raw[:-1]] + [raw[-1] + closer + suf]
         packed = _fill(pieces, pad + pre + opener, pad + "  ", width)

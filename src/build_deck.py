@@ -59,6 +59,7 @@ GROUP_PARTS = range(2, 9)
 VIDEO = ROOT / "video" / "ADBS_opener_deck.mp4"
 POSTER = ROOT / "video" / "ADBS_opener_poster.png"
 EMPTY = "// no output: the collection is empty"
+FLOW_MAX = 8        # output lines in a BEFORE/AFTER panel: label + check + 8 + band fit 5.65 in
 KIND_COLOR = {"code": "PANEL_TXT", "out": "OUT", "error": "ERR", "comment": "COMMENT"}
 
 
@@ -268,8 +269,8 @@ def paste_of(p, what="the result"):
 
 
 def flow_panels(sl, deck):
-    b_lines, b_kind = shape_output(sl["before"])
-    a_lines, a_kind = shape_output(sl["after"])
+    b_lines, b_kind = shape_output(sl["before"], max_lines=FLOW_MAX)
+    a_lines, a_kind = shape_output(sl["after"], max_lines=FLOW_MAX)
     r_lines, r_kind = shape_output(sl["cmd"], reply=True)
     code = STEP[sl["cmd"]]["code"].split("\n")
     pre, mid = split_before(sl["say"][0])
