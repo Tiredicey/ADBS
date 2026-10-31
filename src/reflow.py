@@ -108,7 +108,9 @@ def _render(v, ind, width, compact, pre="", suf=""):
         raw = [f"{k}: {x[1]}" for k, x in body] if kind == "obj" else [x[1] for x in body]
         opener, closer = ("{ ", " }") if kind == "obj" else ("[ ", " ]")
         pieces = [p + "," for p in raw[:-1]] + [raw[-1] + closer + suf]
-        return _fill(pieces, pad + pre + opener, pad + "  ", width)
+        packed = _fill(pieces, pad + pre + opener, pad + "  ", width)
+        if max(len(x) for x in packed) <= width:
+            return packed
     lines = [pad + pre + ("{" if kind == "obj" else "[")]
     if kind == "arr" and _flat(v):
         pieces = [x[1] + "," for x in body[:-1]] + [body[-1][1]]
