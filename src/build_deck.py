@@ -437,14 +437,40 @@ class _CellBox:
         pass
 
 
-def wrapped_lines(t, width_in, pt, em=0.52):
-    per = max(int(width_in * 72 / (em * pt)), 1)
-    return max(1, math.ceil(len(t) / per))
+_FONTS = {}
+
+
+def _font(bold):
+    """Liberation Sans has the same advance widths as Arial (metric-compatible), so it measures Arial text."""
+    if bold not in _FONTS:
+        from PIL import ImageFont
+        import subprocess
+        path = subprocess.run(["fc-match", "-f", "%{file}", "Liberation Sans:bold" if bold else "Liberation Sans"],
+                              capture_output=True, text=True).stdout.strip()
+        _FONTS[bold] = ImageFont.truetype(path, 1000)
+    return _FONTS[bold]
+
+
+def text_w(t, pt, bold=False):
+    return _font(bold).getlength(t) / 1000 * pt / 72
+
+
+def wrapped_lines(t, width_in, pt, bold=False):
+    lines, cur = 1, ""
+    for word in t.split():
+        trial = (cur + " " + word).strip()
+        if cur and text_w(trial, pt, bold) > width_in - 0.05:
+            lines += 1
+            cur = word
+        else:
+            cur = trial
+    return lines
 
 
 def draw_card(s, sl, bp):
     y = TOP + 0.1
-    lw, vw = 3.3, CW - 3.3 - 0.3
+    lw = max(text_w(label, FLOOR, True) for label, _ in sl["rows"]) + 0.35
+    vw = CW - lw - 0.3
     for label, value in sl["rows"]:
         v = "________________________" if bp else value
         h = 0.22 + wrapped_lines(v, vw, FLOOR) * 0.47
