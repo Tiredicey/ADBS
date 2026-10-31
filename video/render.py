@@ -62,9 +62,19 @@ def pulse(t):
     return 0.0 if len(past) == 0 else math.exp(-(t - past[-1]) / 0.09)
 
 
+JIT = [0.0, 0.0]
+
+
+def jitter(t, p):
+    fade = max(0.0, 1.0 - max(0.0, t - T_EXIT) / 0.6)
+    jx = 0.0042 * W * (math.sin(2 * math.pi * 0.37 * t) + 0.6 * math.sin(2 * math.pi * 0.83 * t + 1.0))
+    jy = -0.0085 * H * p + 0.0025 * H * math.sin(2 * math.pi * 0.51 * t + 2.0)
+    return jx * fade, jy * fade
+
+
 def project(x, y, dz, zoom):
     k = FOCAL * zoom / dz
-    return CX + x * k, CY + y * k
+    return CX + JIT[0] + x * k, CY + JIT[1] + y * k
 
 
 def fog(dz):
@@ -154,7 +164,8 @@ def text_layer(img, t):
     od = ImageDraw.Draw(ov)
     x = int(0.07 * W)
     y0 = int(H * (0.62 if W > H else 0.66))
-    kb = od.textbbox((0, 0), cur["kicker"], font=F_KICK)
+    kicker = cur["kicker"] + ("  ·  " + cur["meme"] if cur.get("meme") else "")
+    kb = od.textbbox((0, 0), kicker, font=F_KICK)
     hb = od.textbbox((0, 0), cur["hero"], font=hero_font)
     sb = od.textbbox((0, 0), cur["sub"], font=F_SUB)
     limit = W - 2 * x
@@ -172,7 +183,7 @@ def text_layer(img, t):
     od.rectangle((x - pad, y0 - pad, x - pad + width, y0 + total + pad), fill=(10, 16, 24, int(205 * a)))
     od.rectangle((x - pad, y0 - pad, x - pad + int(8 * S), y0 + total + pad), fill=SIGNAL + (int(255 * a),))
     dx = int((1 - a) * 24 * S)
-    od.text((x + dx, y0 - kb[1]), cur["kicker"], font=F_KICK, fill=AMBER + (int(255 * a),))
+    od.text((x + dx, y0 - kb[1]), kicker, font=F_KICK, fill=AMBER + (int(255 * a),))
     yh = y0 + (kb[3] - kb[1]) + gap1
     od.text((x + dx, yh - hb[1]), cur["hero"], font=hero_font, fill=(246, 248, 250, int(255 * a)))
     ys = yh + (hb[3] - hb[1]) + gap2
@@ -184,6 +195,7 @@ def frame(n):
     t = n / FPS
     p = pulse(t) if t < T_EXIT else 0.0
     zoom = 1.0 + 0.025 * p
+    JIT[0], JIT[1] = jitter(t, pulse(t))
     img = Image.new("RGB", (W, H), INK_T)
     d = ImageDraw.Draw(img)
     draw_space(d, t)

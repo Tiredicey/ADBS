@@ -11,10 +11,10 @@ EXIT_BAR = 18
 
 SECTIONS = [
     {"bar": 0, "kicker": "IT2003 · ADVANCED DATABASE SYSTEMS", "hero": "FREE FALL", "sub": "into MongoDB & the Cloud"},
-    {"bar": 2, "kicker": "PART 1", "hero": "insertOne · deleteMany", "sub": "Documents in, documents out."},
-    {"bar": 4, "kicker": "PART 2", "hero": "findOne · updateMany", "sub": "Find it first. Then change it."},
+    {"bar": 2, "kicker": "PART 1", "meme": "BAWAL ANG DUPLICATE _id DITO", "hero": "insertOne · deleteMany", "sub": "Documents in, documents out."},
+    {"bar": 4, "kicker": "PART 2", "meme": "SANA ALL MAY GIFT", "hero": "findOne · updateMany", "sub": "Find it first. Then change it."},
     {"bar": 6, "kicker": "PART 3", "hero": "$lt  $lte  $gt  $gte", "sub": "The e means equal is allowed."},
-    {"bar": 8, "kicker": "PART 4", "hero": "$in · $or · $not", "sub": "One field, many values. Many fields, any match."},
+    {"bar": 8, "kicker": "PART 4", "meme": "$not = CHAROT", "hero": "$in · $or · $not", "sub": "One field, many values. Many fields, any match."},
     {"bar": 10, "kicker": "PART 5", "hero": "$all · $size · fruit.2", "sub": "Arrays answer like single values."},
     {"bar": 12, "kicker": "PART 6", "hero": "$slice · name.first", "sub": "Trim what you see. Reach inside with a dot."},
     {"bar": 14, "kicker": "PART 7", "hero": "Public · Private · Hybrid", "sub": "Rent it, own it, or mix both."},
