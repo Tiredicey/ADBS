@@ -4,7 +4,7 @@
   "parts": [
    {
     "part": 1,
-    "slides": 15,
+    "slides": 14,
     "words": 292,
     "seconds_at_100_130_150_wpm": [
      175,
@@ -83,15 +83,15 @@
     ]
    }
   ],
-  "slides": 78,
-  "size_mb": 9.9
+  "slides": 74,
+  "size_mb": 0.2
  },
  {
   "deck": "ADBS_GROUP_DECK.pptx",
   "parts": [
    {
     "part": 1,
-    "slides": 16,
+    "slides": 15,
     "words": 292,
     "seconds_at_100_130_150_wpm": [
      175,
@@ -170,7 +170,7 @@
     ]
    }
   ],
-  "slides": 96,
-  "size_mb": 9.9
+  "slides": 92,
+  "size_mb": 0.3
  }
 ]

@@ -59,6 +59,11 @@ GROUP_PARTS = range(2, 9)
 VIDEO = ROOT / "video" / "ADBS_opener_deck.mp4"
 POSTER = ROOT / "video" / "ADBS_opener_poster.png"
 EMPTY = "// no output: the collection is empty"
+# The user's own edits to the shared deck (2026-10-31), kept so a rebuild never undoes them.
+SHOW_VIDEO = False          # user deleted the opener slide; set True to put it back
+SHOW_REFERENCES = False     # user deleted the References slide
+REMOVED_SLIDES = {"Tables are collections. Rows are documents."}   # user deleted this Part 1 slide
+NO_BLANKS_FOR = ("Presenter", "Group:", "Section:", "Date:")       # no name/date fill-ins anywhere
 FLOW_MAX = 8        # output lines in a BEFORE/AFTER panel: label + check + 8 + band fit 5.65 in
 KIND_COLOR = {"code": "PANEL_TXT", "out": "OUT", "error": "ERR", "comment": "COMMENT"}
 
@@ -350,6 +355,8 @@ def helper_tag(s):
 def plan(deck, part, sl):
     """Returns a list of slide specs (dict) for one content item."""
     bp = deck.group and part["n"] in GROUP_PARTS
+    if sl["title"] in REMOVED_SLIDES:
+        return []
     if sl["kind"] in ("flow", "find", "data"):
         if sl["kind"] == "flow":
             panels = flow_panels(sl, deck) if not bp else flow_panels(sl, _GroupView(deck))
@@ -416,7 +423,7 @@ def draw_table(s, sl, bp):
             blank = bp and c > 0
             cell.fill.solid()
             cell.fill.fore_color.rgb = C["BLANK" if blank else ("WHITE" if r_i % 2 else "ROW_ALT")]
-            v = "______________" if blank else val
+            v = blank_for(widths[c] - 0.34, 30) if blank else val
             seg = {"t": v, "bold": c == 0, "font": MONO if (c == 0 and v.startswith("$")) else SANS}
             text(None, 0, 0, 0, 0, [[seg]], size=30, anchor=MSO_ANCHOR.MIDDLE, pad=0.12, target=_CellBox(cell))
 
@@ -455,6 +462,22 @@ def text_w(t, pt, bold=False):
     return _font(bold).getlength(t) / 1000 * pt / 72
 
 
+def blank_for(width_in, pt):
+    """An underline blank that fits on one line of the given width."""
+    return "_" * max(4, int(width_in / text_w("_", pt)))
+
+
+def no_name_blanks(deck):
+    for i, s in enumerate(deck.prs.slides, 1):
+        for shp in s.shapes:
+            frames = [shp.text_frame] if shp.has_text_frame else []
+            if getattr(shp, "has_table", False) and shp.has_table:
+                frames += [c.text_frame for r in shp.table.rows for c in r.cells]
+            for tf in frames:
+                if any(k in tf.text for k in NO_BLANKS_FOR):
+                    raise SystemExit(f"name/date blank left on slide {i}: {tf.text[:60]}")
+
+
 def wrapped_lines(t, width_in, pt, bold=False):
     lines, cur = 1, ""
     for word in t.split():
@@ -472,7 +495,7 @@ def draw_card(s, sl, bp):
     lw = max(text_w(label, FLOOR, True) for label, _ in sl["rows"]) + 0.35
     vw = CW - lw - 0.3
     for label, value in sl["rows"]:
-        v = "________________________" if bp else value
+        v = blank_for(min(vw, 6.0), FLOOR) if bp else value
         h = 0.22 + wrapped_lines(v, vw, FLOOR) * 0.47
         rect(s, M, y, CW, h, fill="BLANK" if bp else "WHITE", line="RULE")
         text(s, M + 0.15, y + 0.1, lw, h - 0.15, label, size=FLOOR, bold=True, color="SIGNAL")
@@ -511,7 +534,6 @@ def slide_title(deck):
     text(s, M, 1.6, CW, 2.4, [[{"t": "MongoDB Commands"}], [{"t": "& Cloud Computing"}]], size=60, bold=True, color="WHITE", spacing=0.95)
     sub = "Shared group deck · Part 1 is done · Parts 2-8: fill the orange boxes" if deck.group else "07, 08 and 09 Handouts"
     text(s, M, 3.9, CW, 1.4, sub, size=FLOOR, color="PANEL_TXT")
-    text(s, M, 6.1, CW, 0.9, "Group: __________   Section: ______   Date: ________", size=FLOOR, color="PANEL_TXT")
     notes(s, "SAY: Good day. We are [group name]. Our topic is MongoDB commands and cloud computing, from the 07, 08 and 09 handouts. Each of us has 3 minutes.")
 
 
@@ -519,7 +541,7 @@ def slide_howto(deck):
     s = base_slide(deck, "How to do your part (read this first)")
     helper_tag(s)
     steps = [
-        ("Find your part", "The 'Who presents what' slide lists the parts. Type your name next to yours."),
+        ("Find your part", "The 'Eight parts' slide lists them. Your part has a big number divider."),
         ("Look at Part 1", "Part 1 is finished. Make yours look like it."),
         ("Open the MongoDB shell", "MongoDB Compass → Connect → click  >_ Open MongoDB shell."),
         ("Run your SETUP slide", "Copy all its lines, paste in the shell, press Enter."),
@@ -536,27 +558,6 @@ def slide_howto(deck):
         text(s, cx + 0.9, cy + 0.1, 5.1, 1.05, [[{"t": head, "bold": True, "size": 20}], [{"t": body, "size": 16, "color": "MUTED"}]], name="EXEMPT_HOWTO")
     text(s, M, 6.65, CW, 0.4, "Only edit YOUR part. Delete every slide marked HELPER before presenting.", size=18, bold=True, color="SIGNAL", name="EXEMPT_HOWTO")
     notes(s, "Instructions for group members. Delete this slide before presenting.")
-
-
-def slide_roles(deck):
-    s = base_slide(deck, "Who presents what")
-    tbl = s.shapes.add_table(9, 3, I(M), I(TOP), I(CW), I(0.58 * 9)).table
-    for c, wd in enumerate((1.3, 6.8, CW - 8.1)):
-        tbl.columns[c].width = I(wd)
-    for c, hd in enumerate(["Part", "Topic", "Presenter"]):
-        cell = tbl.cell(0, c)
-        cell.fill.solid()
-        cell.fill.fore_color.rgb = C["INK"]
-        text(None, 0, 0, 0, 0, [[{"t": hd, "bold": True, "color": "WHITE"}]], size=FLOOR, pad=0.08, target=_CellBox(cell))
-    for i, p in enumerate(PARTS, start=1):
-        tbl.rows[i].height = I(0.58)
-        for c, val in enumerate([str(p["n"]), p["title"], "______________"]):
-            cell = tbl.cell(i, c)
-            cell.fill.solid()
-            cell.fill.fore_color.rgb = C["WHITE" if i % 2 else "ROW_ALT"]
-            text(None, 0, 0, 0, 0, [[{"t": val, "size": 24 if len(val) > 30 else FLOOR}]], size=FLOOR, pad=0.08, target=_CellBox(cell))
-    footer(s, "", "", False)
-    notes(s, "Type each presenter's name.")
 
 
 def slide_agenda(deck):
@@ -576,8 +577,7 @@ def slide_divider(deck, part, nslides, seconds):
     text(s, 4.2, 0.6, 8.6, 2.3, part["title"], size=44, bold=True, color="WHITE", anchor=MSO_ANCHOR.BOTTOM)
     text(s, 4.2, 3.0, 8.6, 1.0, part["kicker"], size=FLOOR, color="OUT")
     text(s, 4.2, 4.15, 8.6, 1.1, "“" + part["takeaway"] + "”", size=32, color="AMBER")
-    text(s, 4.2, 5.45, 8.6, 0.6, "Presenter: ______________", size=FLOOR, color="PANEL_TXT")
-    text(s, 4.2, 6.3, 8.6, 0.5, f"{nslides} slides · about {seconds // 60} min {seconds % 60:02d} s", size=22, color="COMMENT", name="EXEMPT_PROGRESS")
+    text(s, 4.2, 5.55, 8.6, 0.5, f"{nslides} slides · about {seconds // 60} min {seconds % 60:02d} s", size=22, color="COMMENT", name="EXEMPT_PROGRESS")
     timing = f"\n\n(Whole part: {part_words(part)} words, about {seconds // 60} min {seconds % 60:02d} s at a calm 130 words a minute. Limit: 3 minutes.)"
     notes(s, "SAY:\n" + part["intro"] + timing)
 
@@ -616,11 +616,11 @@ def slide_refs(deck):
 def build(group, out):
     d = Deck(group)
     report = {"deck": out.name, "parts": []}
-    slide_video(d)
+    if SHOW_VIDEO:
+        slide_video(d)
     slide_title(d)
     if group:
         slide_howto(d)
-    slide_roles(d)
     slide_agenda(d)
     for part in PARTS:
         specs = [sp for sl in part["slides"] for sp in plan(d, part, sl)]
@@ -635,7 +635,9 @@ def build(group, out):
         report["parts"].append({"part": part["n"], "slides": n, "words": w,
                                 "seconds_at_100_130_150_wpm": [round(w / r * 60) for r in (100, 130, 150)]})
     slide_cheatsheet(d)
-    slide_refs(d)
+    if SHOW_REFERENCES:
+        slide_refs(d)
+    no_name_blanks(d)
     missing = d.wanted - d.found
     if missing:
         raise SystemExit("highlight not found: " + repr(sorted(missing)))
