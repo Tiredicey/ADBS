@@ -31,7 +31,11 @@ PAL = {
     "PANEL": "16212E", "PANEL_TXT": "E6ECF2", "OUT": "9FE0C9", "ERR": "FFB4A8", "COMMENT": "8FA3B8",
     "AMBER": "F2B27A", "NEW": "FFD27F", "SIGNAL": "C2410C", "TEAL": "0B6E61", "MUTED": "4A5868",
     "BLANK": "FFF4E5",
+    "BEBOP_RED": "951C1D", "BEBOP_NAVY": "222C5E", "BEBOP_GOLD": "AF9510", "BEBOP_TEAL": "4C7F8C", "BEBOP_PAPER": "E1D8DE",
 }
+# Divider blocks: colours measured from the Cowboy Bebop opening (research/reference_teardown.json).
+# (block, text colour on the block). BEBOP_TEAL is decoration only: white on it is 4.45:1.
+DIVIDER_BLOCKS = [("BEBOP_RED", "WHITE"), ("BEBOP_NAVY", "WHITE"), ("BEBOP_GOLD", "INK")]
 C = {k: RGBColor.from_string(v) for k, v in PAL.items()}
 # (text, background, where it is used). The audit checks every pair against 4.5:1.
 CONTRAST_PAIRS = [
@@ -43,6 +47,8 @@ CONTRAST_PAIRS = [
     ("COMMENT", "PANEL", "comments"), ("AMBER", "PANEL", "panel labels"), ("NEW", "PANEL", "added"),
     ("AMBER", "INK", "divider number"), ("OUT", "INK", "divider kicker"), ("COMMENT", "INK", "divider timing"),
     ("PANEL_TXT", "INK", "divider text"),
+    ("WHITE", "BEBOP_RED", "divider number"), ("WHITE", "BEBOP_NAVY", "divider number"), ("INK", "BEBOP_GOLD", "divider number"),
+    ("BEBOP_PAPER", "INK", "divider rule label"),
 ]
 
 SANS, MONO = "Arial", "Courier New"
@@ -593,11 +599,17 @@ def slide_agenda(deck):
 
 def slide_divider(deck, part, nslides, seconds):
     s = deck.new("INK")
-    text(s, M, 1.0, 3.6, 3.0, str(part["n"]), size=180, bold=True, color="AMBER")
-    text(s, 4.2, 0.6, 8.6, 2.3, part["title"], size=44, bold=True, color="WHITE", anchor=MSO_ANCHOR.BOTTOM)
-    text(s, 4.2, 3.0, 8.6, 1.0, part["kicker"], size=FLOOR, color="OUT")
-    text(s, 4.2, 4.15, 8.6, 1.1, "“" + part["takeaway"] + "”", size=32, color="AMBER")
-    text(s, 4.2, 5.55, 8.6, 0.5, f"{nslides} slides · about {seconds // 60} min {seconds % 60:02d} s", size=22, color="COMMENT", name="EXEMPT_PROGRESS")
+    block, on_block = DIVIDER_BLOCKS[(part["n"] - 1) % len(DIVIDER_BLOCKS)]
+    rect(s, 0, 0, 4.0, SH, fill=block)
+    rect(s, 4.0, 0, 0.16, SH, fill="BEBOP_PAPER")
+    rect(s, 4.16, 6.55, SW - 4.16, 0.22, fill="BEBOP_TEAL")
+    rect(s, 4.16, 6.77, SW - 4.16, 0.06, fill="BEBOP_PAPER")
+    text(s, 0.35, 0.35, 3.4, 0.5, "PART", size=FLOOR, bold=True, color=on_block)
+    text(s, 0.2, 0.8, 3.7, 3.4, str(part["n"]), size=220, bold=True, color=on_block)
+    text(s, 4.6, 0.55, 8.3, 2.3, part["title"], size=44, bold=True, color="WHITE", anchor=MSO_ANCHOR.BOTTOM)
+    text(s, 4.6, 2.95, 8.3, 1.0, part["kicker"], size=FLOOR, color="OUT")
+    text(s, 4.6, 4.05, 8.3, 1.1, "“" + part["takeaway"] + "”", size=32, color="AMBER")
+    text(s, 4.6, 5.45, 8.3, 0.5, f"{nslides} slides · about {seconds // 60} min {seconds % 60:02d} s", size=22, color="COMMENT", name="EXEMPT_PROGRESS")
     timing = f"\n\n(Whole part: {part_words(part, REMOVED_SLIDES)} words, about {seconds // 60} min {seconds % 60:02d} s at a calm 130 words a minute. Limit: 3 minutes.)"
     notes(s, "SAY:\n" + part["intro"] + timing)
 

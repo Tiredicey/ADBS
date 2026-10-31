@@ -1,0 +1,102 @@
+{
+ "Cowboy_Bebop_-_Opening_-_Tank_HD_-_60_fps.mp4": {
+  "duration_s": 89.93,
+  "video": [
+   {
+    "codec_name": "av1",
+    "width": 960,
+    "height": 720,
+    "r_frame_rate": "60000/1001"
+   }
+  ],
+  "scene_cuts_gt_0.3": 5,
+  "cuts_per_min": 3.3,
+  "median_shot_s": 14.31,
+  "near_still_share_24fps": 0.234,
+  "mean_motion_luma": 5.61,
+  "max_flashes_in_any_1s": 4,
+  "max_frame_luma_jump": 0.469,
+  "mean_saturation_0_255": 48.8,
+  "palette_k6": [
+   {
+    "hex": "050303",
+    "share": 0.508
+   },
+   {
+    "hex": "222C5E",
+    "share": 0.166
+   },
+   {
+    "hex": "951C1D",
+    "share": 0.12
+   },
+   {
+    "hex": "4C7F8C",
+    "share": 0.084
+   },
+   {
+    "hex": "AF9510",
+    "share": 0.069
+   },
+   {
+    "hex": "E1D8DE",
+    "share": 0.054
+   }
+  ],
+  "integrated_lufs_true_peak": [
+   -14.9,
+   -2.3
+  ],
+  "librosa_tempo_bpm": 92.3
+ },
+ "The_Orbital_Children__Official_Trailer__Netflix_Anime.mp4": {
+  "duration_s": 110.99,
+  "video": [
+   {
+    "codec_name": "h264",
+    "width": 1920,
+    "height": 1080,
+    "r_frame_rate": "24/1"
+   }
+  ],
+  "scene_cuts_gt_0.3": 71,
+  "cuts_per_min": 38.4,
+  "median_shot_s": 0.79,
+  "near_still_share_24fps": 0.463,
+  "mean_motion_luma": 5.8,
+  "max_flashes_in_any_1s": 4,
+  "max_frame_luma_jump": 0.988,
+  "mean_saturation_0_255": 30.4,
+  "palette_k6": [
+   {
+    "hex": "070304",
+    "share": 0.344
+   },
+   {
+    "hex": "DCDEDA",
+    "share": 0.19
+   },
+   {
+    "hex": "9EAAA5",
+    "share": 0.169
+   },
+   {
+    "hex": "2F3940",
+    "share": 0.135
+   },
+   {
+    "hex": "6A7372",
+    "share": 0.129
+   },
+   {
+    "hex": "AB1813",
+    "share": 0.033
+   }
+  ],
+  "integrated_lufs_true_peak": [
+   -17.6,
+   -0.6
+  ],
+  "librosa_tempo_bpm": 107.7
+ }
+}
