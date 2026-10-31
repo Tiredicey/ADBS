@@ -57,14 +57,14 @@ CW = SW - 2 * M
 TOP, BOTTOM = 1.2, 6.85
 BAND, GAP, PAD = 0.62, 0.12, 0.2
 GROUP_PARTS = range(2, 9)
-VIDEO = ROOT / "video" / "ADBS_opener_deck.mp4"
-POSTER = ROOT / "video" / "ADBS_opener_poster.png"
 EMPTY = "// no output: the collection is empty"
 # The user's own edits to the shared deck (2026-10-31), kept so a rebuild never undoes them.
-SHOW_VIDEO = False          # user deleted the opener slide; set True to put it back
 SHOW_REFERENCES = False     # user deleted the References slide
 REMOVED_SLIDES = set()      # topic list is enforced in content.py; "Tables are collections" now lives in the Part 1 intro script
 SECTION = "Section 3.1A"
+DECK_SOUNDBITE = "Store it. Query it. Put it in the cloud."
+AGENDA_SOUNDBITE = "Six parts MongoDB. Two parts cloud."
+CHEAT_SOUNDBITE = "Every command, one slide."
 NO_BLANKS_FOR = ("Presenter", "Group:", "Section:", "Date:")       # no name/date fill-ins anywhere
 FLOW_MAX = 8        # output lines in a BEFORE/AFTER panel: label + check + 8 + band fit 5.65 in
 KIND_COLOR = {"code": "PANEL_TXT", "out": "OUT", "error": "ERR", "comment": "COMMENT"}
@@ -213,7 +213,7 @@ def pack(panels):
         if best_k is not None and len(split) > best_k:
             break
         groups = [panels[a:b] for a, b in split]
-        hs = [stack_h(g, i == len(groups) - 1) for i, g in enumerate(groups)]
+        hs = [stack_h(g, True) for g in groups]
         if max(hs) > avail + 1e-6:
             continue
         score = (max(hs) - min(hs), -min(hs))
@@ -302,11 +302,15 @@ def flow_panels(sl, deck):
              "marks": {"new": sl.get("new", [])}, "say": sl["say"][1]}
     if sl.get("before_same"):
         before.pop("check")
+    split = None
+    if stack_h([command], True) > BOTTOM - TOP + 1e-6:
+        split = [{"label": "2  COMMAND", "lines": [(x, "code") for x in code], "say": mid},
+                 {"label": "2  REPLY", "lines": note_r + [(x, r_kind) for x in r_lines], "say": ""}]
     if not deck.group:
         if not sl.get("before_same"):
             deck.wanted |= {("gone", m) for m in sl.get("gone", [])}
         deck.wanted |= {("new", m) for m in sl.get("new", [])}
-        return [before, command, after]
+        return [before] + (split or [command]) + [after]
     return [before if sl.get("before_same") else paste_of(before),
             {"label": "2  COMMAND", "lines": [(x, "code") for x in code], "say": mid},
             {"label": "2  REPLY", "paste": {"n": len(r_lines), "run": None, "what": "the reply"}, "say": ""},
@@ -351,10 +355,11 @@ def notes(s, body):
     s.notes_slide.notes_text_frame.text = body
 
 
-def say_notes(ctx, script, source, todo=False):
+def say_notes(ctx, script, source, todo=False, soundbite=""):
     script = script.strip() or "(No new words. Let the class read this slide, then click.)"
     head = "TO DO: run the commands, paste screenshots into the orange boxes, fill the blanks.\nSuggested script:\n" if todo else ""
-    return f"{head}SAY ({ctx}):\n{script}\n\nSource: {source}"
+    bite = f"\n\nSOUNDBITE (say it last, slowly): {soundbite}" if soundbite else ""
+    return f"{head}SAY ({ctx}):\n{script}{bite}\n\nSource: {source}"
 
 
 def base_slide(deck, title, bg="PAPER"):
@@ -382,9 +387,8 @@ def plan(deck, part, sl):
         else:
             panels = find_panels(sl, view, data=sl["kind"] == "data")
         groups = pack(panels)
-        return [{"kind": "panels", "panels": g, "band": sl["takeaway"] if i == len(groups) - 1 else None,
-                 "next": groups[i + 1][0]["label"].strip() if i + 1 < len(groups) else None,
-                 "say": " ".join(p["say"] for p in g if p.get("say")), "sl": sl, "bp": bp} for i, g in enumerate(groups)]
+        return [{"kind": "panels", "panels": g, "band": sl["takeaway"],
+                 "say": " ".join(p["say"] for p in g if p.get("say")), "sl": sl, "bp": bp} for g in groups]
     return [{"kind": sl["kind"], "sl": sl, "band": sl["takeaway"], "say": " ".join(sl["say"]), "bp": bp}]
 
 
@@ -417,13 +421,9 @@ def render(deck, part, spec, ctx):
         draw_card(s, sl, bp)
     elif kind == "list":
         draw_list(s, sl, bp)
-    if spec["band"]:
-        band(s, spec["band"])
-    elif spec.get("next") and kind == "panels" and stack_h(spec["panels"], True) <= BOTTOM - TOP + 1e-6:
-        text(s, M, BOTTOM - BAND, CW, BAND, "Next: " + spec["next"] + "  →", size=FLOOR, color="MUTED",
-             anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.RIGHT, pad=0.18)
+    band(s, spec["band"])
     footer(s, ctx, sl["source"], verified=kind == "panels" and not bp)
-    notes(s, say_notes(ctx, spec["say"], sl["source"], todo=bp))
+    notes(s, say_notes(ctx, spec["say"], sl["source"], todo=bp, soundbite=spec["band"]))
 
 
 def draw_table(s, sl, bp):
@@ -543,22 +543,16 @@ def draw_list(s, sl, bp):
 
 # ---------- fixed slides ----------
 
-def slide_video(deck):
-    s = deck.new("INK")
-    mv = s.shapes.add_movie(str(VIDEO), 0, 0, I(SW), I(SH), poster_frame_image=str(POSTER), mime_type="video/mp4")
-    mv.name = "OPENER_VIDEO"
-    notes(s, "Opener video, 35 seconds. Click the video once to play it (or press Alt + P). When it ends, press the right arrow key for the title slide.")
-
-
 def slide_title(deck):
     s = deck.new("INK")
     rect(s, 0, 5.75, SW, 0.1, fill="AMBER")
     text(s, M, 0.9, CW, 0.6, "IT2003 · ADVANCED DATABASE SYSTEMS", size=FLOOR, bold=True, color="AMBER")
     text(s, M, 1.6, CW, 2.4, [[{"t": "MongoDB Commands"}], [{"t": "& Cloud Computing"}]], size=60, bold=True, color="WHITE", spacing=0.95)
-    sub = "Shared group deck · Part 1 is done · Parts 2-8: fill the orange boxes" if deck.group else "07, 08 and 09 Handouts"
-    text(s, M, 3.9, CW, 1.4, sub, size=FLOOR, color="PANEL_TXT")
+    text(s, M, 3.85, CW, 0.7, "“" + DECK_SOUNDBITE + "”", size=32, color="AMBER")
+    text(s, M, 4.65, CW, 0.6, "Based on the 07, 08 and 09 Handouts", size=FLOOR, color="PANEL_TXT")
     text(s, M, 6.15, CW, 0.7, SECTION, size=32, bold=True, color="WHITE")
-    notes(s, "SAY: Good day. We are [group name]. Our topic is MongoDB commands and cloud computing, from the 07, 08 and 09 handouts. Each of us has 3 minutes.")
+    notes(s, "SAY: Good day. We are Section 3.1A. Our topic is MongoDB commands and cloud computing, from the 07, 08 and 09 handouts. Each of us has 3 minutes."
+             "\n\nSOUNDBITE (say it last, slowly): " + DECK_SOUNDBITE)
 
 
 def slide_howto(deck):
@@ -588,11 +582,13 @@ def slide_agenda(deck):
     s = base_slide(deck, "Eight parts · 3 minutes each")
     for i, p in enumerate(PARTS):
         cx = M + 6.3 * (i // 4)
-        cy = TOP + 1.38 * (i % 4)
-        rect(s, cx, cy, 6.1, 1.25, fill="WHITE", line="RULE")
-        text(s, cx + 0.15, cy, 0.9, 1.25, str(p["n"]), size=40, bold=True, color="SIGNAL", anchor=MSO_ANCHOR.MIDDLE)
-        text(s, cx + 1.05, cy, 4.95, 1.25, p["title"], size=FLOOR, bold=True, anchor=MSO_ANCHOR.MIDDLE)
-    notes(s, "SAY: We have eight parts. Parts 1 to 6 are MongoDB commands. Parts 7 and 8 are cloud computing.")
+        cy = TOP + 1.2 * (i % 4)
+        rect(s, cx, cy, 6.1, 1.08, fill="WHITE", line="RULE")
+        text(s, cx + 0.15, cy, 0.9, 1.08, str(p["n"]), size=40, bold=True, color="SIGNAL", anchor=MSO_ANCHOR.MIDDLE)
+        text(s, cx + 1.05, cy, 4.95, 1.08, p["title"], size=FLOOR, bold=True, anchor=MSO_ANCHOR.MIDDLE)
+    band(s, AGENDA_SOUNDBITE)
+    notes(s, "SAY: We have eight parts. Parts 1 to 6 are MongoDB commands. Parts 7 and 8 are cloud computing."
+             "\n\nSOUNDBITE (say it last, slowly): " + AGENDA_SOUNDBITE)
 
 
 def slide_divider(deck, part, nslides, seconds):
@@ -622,11 +618,12 @@ def slide_cheatsheet(deck):
     s = base_slide(deck, "All commands on one slide")
     rows = CHEATSHEET
     for i, (k, v) in enumerate(rows):
-        y = TOP + 0.56 * i
-        rect(s, M, y, CW, 0.52, fill="WHITE" if i % 2 == 0 else "ROW_ALT")
-        text(s, M + 0.15, y, 2.6, 0.52, k, size=FLOOR, bold=True, anchor=MSO_ANCHOR.MIDDLE)
-        text(s, M + 2.9, y, CW - 3.0, 0.52, v, size=FLOOR, font=SANS if k == "Cloud" else MONO, anchor=MSO_ANCHOR.MIDDLE, wrap=False)
-    notes(s, "Leave this up during questions.")
+        y = TOP + 0.53 * i
+        rect(s, M, y, CW, 0.5, fill="WHITE" if i % 2 == 0 else "ROW_ALT")
+        text(s, M + 0.15, y, 2.6, 0.5, k, size=FLOOR, bold=True, anchor=MSO_ANCHOR.MIDDLE)
+        text(s, M + 2.9, y, CW - 3.0, 0.5, v, size=FLOOR, font=SANS if k == "Cloud" else MONO, anchor=MSO_ANCHOR.MIDDLE, wrap=False)
+    band(s, CHEAT_SOUNDBITE)
+    notes(s, "Leave this up during questions.\n\nSOUNDBITE: " + CHEAT_SOUNDBITE)
 
 
 def slide_refs(deck):
@@ -640,8 +637,6 @@ def slide_refs(deck):
 def build(group, out):
     d = Deck(group)
     report = {"deck": out.name, "parts": []}
-    if SHOW_VIDEO:
-        slide_video(d)
     slide_title(d)
     if group:
         slide_howto(d)
