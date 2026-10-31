@@ -23,7 +23,7 @@
    "part": 1,
    "role": "cmd",
    "code": "db.movies.insertOne({\"title\" : \"Stand by Me\"})",
-   "output": "{\n  acknowledged: true,\n  insertedId: ObjectId('6ae576e8f93072a647544ca7')\n}",
+   "output": "{\n  acknowledged: true,\n  insertedId: ObjectId('6ae590867b507d5b5c544ca7')\n}",
    "exit": 0
   },
   {
@@ -47,7 +47,7 @@
    "part": 1,
    "role": "cmd",
    "code": "db.movies.insertMany([{\"title\" : \"Ghostbusters\"},\n  {\"title\" : \"E.T.\"},\n  {\"title\" : \"Blade Runner\"}])",
-   "output": "{\n  acknowledged: true,\n  insertedIds: {\n    '0': ObjectId('6ae576e997ec7621c2544ca7'),\n    '1': ObjectId('6ae576e997ec7621c2544ca8'),\n    '2': ObjectId('6ae576e997ec7621c2544ca9')\n  }\n}",
+   "output": "{\n  acknowledged: true,\n  insertedIds: {\n    '0': ObjectId('6ae59088cd1d7692c9544ca7'),\n    '1': ObjectId('6ae59088cd1d7692c9544ca8'),\n    '2': ObjectId('6ae59088cd1d7692c9544ca9')\n  }\n}",
    "exit": 0
   },
   {
@@ -70,7 +70,7 @@
    "id": "p1_unordered",
    "part": 1,
    "role": "error",
-   "code": "db.movies.insertMany([{\"_id\" : 3, \"title\" : \"Sixteen Candles\"},\n  {\"_id\" : 4, \"title\" : \"The Terminator\"},\n  {\"_id\" : 4, \"title\" : \"The Princess Bride\"},\n  {\"_id\" : 5, \"title\" : \"Scarface\"}],\n  {\"ordered\" : false})",
+   "code": "db.movies.insertMany([\n  {\"_id\" : 3, \"title\" : \"Sixteen Candles\"},\n  {\"_id\" : 4, \"title\" : \"The Terminator\"},\n  {\"_id\" : 4, \"title\" : \"The Princess Bride\"},\n  {\"_id\" : 5, \"title\" : \"Scarface\"}],\n  {\"ordered\" : false})",
    "output": "MongoBulkWriteError: E11000 duplicate key error collection: adbs_part1.movies index: _id_ dup key: { _id: 4 }",
    "exit": 1
   },
@@ -94,7 +94,7 @@
    "id": "p1_ordered",
    "part": 1,
    "role": "error",
-   "code": "db.ordered.insertMany([{\"_id\" : 3, \"title\" : \"Sixteen Candles\"},\n  {\"_id\" : 4, \"title\" : \"The Terminator\"},\n  {\"_id\" : 4, \"title\" : \"The Princess Bride\"},\n  {\"_id\" : 5, \"title\" : \"Scarface\"}])",
+   "code": "db.ordered.insertMany([\n  {\"_id\" : 3, \"title\" : \"Sixteen Candles\"},\n  {\"_id\" : 4, \"title\" : \"The Terminator\"},\n  {\"_id\" : 4, \"title\" : \"The Princess Bride\"},\n  {\"_id\" : 5, \"title\" : \"Scarface\"}])",
    "output": "MongoBulkWriteError: E11000 duplicate key error collection: adbs_part1.ordered index: _id_ dup key: { _id: 4 }",
    "exit": 1
   },
@@ -182,7 +182,7 @@
    "id": "p2_replaceOne",
    "part": 2,
    "role": "cmd",
-   "code": "var Joe = db.users.findOne({\"name\" : \"Joe\"});\nJoe.relationships = {\"friends\" : Joe.friends, \"enemies\" : Joe.enemies};\nJoe.username = Joe.name;\ndelete Joe.friends; delete Joe.enemies; delete Joe.name;\ndb.users.replaceOne({\"name\" : \"Joe\"}, Joe)",
+   "code": "var Joe = db.users.findOne({\"name\" : \"Joe\"});\nJoe.relationships = {\"friends\" : Joe.friends,\n  \"enemies\" : Joe.enemies};\nJoe.username = Joe.name;\ndelete Joe.friends; delete Joe.enemies;\ndelete Joe.name;\ndb.users.replaceOne({\"name\" : \"Joe\"}, Joe)",
    "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
    "exit": 0
   },
@@ -206,7 +206,7 @@
    "id": "p2_set",
    "part": 2,
    "role": "cmd",
-   "code": "db.users.updateOne({\"name\" : \"John\"},\n  {\"$set\" : {\"favorite book\" : \"Green Eggs and Ham\"}})",
+   "code": "db.users.updateOne({\"name\" : \"John\"},\n  {\"$set\" : {\"favorite book\" :\n    \"Green Eggs and Ham\"}})",
    "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
    "exit": 0
   },
@@ -222,7 +222,7 @@
    "id": "p2_set_array",
    "part": 2,
    "role": "cmd",
-   "code": "db.users.updateOne({\"name\" : \"John\"},\n  {\"$set\" : {\"favorite book\" :\n  [\"Cat's Cradle\", \"Foundation Trilogy\", \"Ender's Game\"]}})",
+   "code": "db.users.updateOne({\"name\" : \"John\"},\n  {\"$set\" : {\"favorite book\" :\n  [\"Cat's Cradle\", \"Foundation Trilogy\",\n   \"Ender's Game\"]}})",
    "output": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}",
    "exit": 0
   },
@@ -374,7 +374,7 @@
    "id": "p4_in",
    "part": 4,
    "role": "cmd",
-   "code": "db.raffle.find({\"ticket_no\" : {\"$in\" : [725, 542, 390]}})",
+   "code": "db.raffle.find({\"ticket_no\" :\n  {\"$in\" : [725, 542, 390]}})",
    "output": "[\n  { _id: 1, ticket_no: 725, winner: false },\n  { _id: 2, ticket_no: 542, winner: false },\n  { _id: 3, ticket_no: 390, winner: false }\n]",
    "exit": 0
   },
@@ -382,7 +382,7 @@
    "id": "p4_or",
    "part": 4,
    "role": "cmd",
-   "code": "db.raffle.find({\"$or\" : [{\"ticket_no\" : 725}, {\"winner\" : true}]})",
+   "code": "db.raffle.find({\"$or\" : [{\"ticket_no\" : 725},\n  {\"winner\" : true}]})",
    "output": "[\n  { _id: 1, ticket_no: 725, winner: false },\n  { _id: 4, ticket_no: 111, winner: true }\n]",
    "exit": 0
   },
@@ -398,7 +398,7 @@
    "id": "p4_not",
    "part": 4,
    "role": "cmd",
-   "code": "db.users.find({salary: {$not: {$gt: 10000}}}).pretty()",
+   "code": "db.users.find({salary:\n  {$not: {$gt: 10000}}}).pretty()",
    "output": "[\n  { _id: 1, name: 'Rhea', salary: 8000 },\n  { _id: 2, name: 'Mark', salary: 10000 }\n]",
    "exit": 0
   },
@@ -422,7 +422,7 @@
    "id": "p5_insert",
    "part": 5,
    "role": "cmd",
-   "code": "db.food.insertOne({\"_id\" : 1, \"fruit\" : [\"apple\", \"banana\", \"peach\"]})\ndb.food.insertOne({\"_id\" : 2, \"fruit\" : [\"apple\", \"kumquat\", \"orange\"]})\ndb.food.insertOne({\"_id\" : 3, \"fruit\" : [\"cherry\", \"banana\", \"apple\"]})",
+   "code": "db.food.insertOne({\"_id\" : 1,\n  \"fruit\" : [\"apple\", \"banana\", \"peach\"]})\ndb.food.insertOne({\"_id\" : 2,\n  \"fruit\" : [\"apple\", \"kumquat\", \"orange\"]})\ndb.food.insertOne({\"_id\" : 3,\n  \"fruit\" : [\"cherry\", \"banana\", \"apple\"]})",
    "output": "{ acknowledged: true, insertedId: 3 }",
    "exit": 0
   },
@@ -478,7 +478,7 @@
    "id": "p6_slice_first",
    "part": 6,
    "role": "cmd",
-   "code": "db.blog.posts.findOne({\"_id\" : 1}, {\"comments\" : {\"$slice\" : 10}})",
+   "code": "db.blog.posts.findOne({\"_id\" : 1},\n  {\"comments\" : {\"$slice\" : 10}})",
    "output": "{\n  _id: 1,\n  title: 'ADBS',\n  comments: [\n    'c1',  'c2', 'c3',\n    'c4',  'c5', 'c6',\n    'c7',  'c8', 'c9',\n    'c10'\n  ]\n}",
    "exit": 0
   },
@@ -486,7 +486,7 @@
    "id": "p6_slice_last",
    "part": 6,
    "role": "cmd",
-   "code": "db.blog.posts.findOne({\"_id\" : 1}, {\"comments\" : {\"$slice\" : -10}})",
+   "code": "db.blog.posts.findOne({\"_id\" : 1},\n  {\"comments\" : {\"$slice\" : -10}})",
    "output": "{\n  _id: 1,\n  title: 'ADBS',\n  comments: [\n    'c31', 'c32', 'c33',\n    'c34', 'c35', 'c36',\n    'c37', 'c38', 'c39',\n    'c40'\n  ]\n}",
    "exit": 0
   },
@@ -494,7 +494,7 @@
    "id": "p6_slice_page",
    "part": 6,
    "role": "cmd",
-   "code": "db.blog.posts.findOne({\"_id\" : 1}, {\"comments\" : {\"$slice\" : [23, 10]}})",
+   "code": "db.blog.posts.findOne({\"_id\" : 1},\n  {\"comments\" : {\"$slice\" : [23, 10]}})",
    "output": "{\n  _id: 1,\n  title: 'ADBS',\n  comments: [\n    'c24', 'c25', 'c26',\n    'c27', 'c28', 'c29',\n    'c30', 'c31', 'c32',\n    'c33'\n  ]\n}",
    "exit": 0
   },
@@ -510,7 +510,7 @@
    "id": "p6_dot",
    "part": 6,
    "role": "cmd",
-   "code": "db.people.find({\"name.first\" : \"John\", \"name.last\" : \"Escalona\"})",
+   "code": "db.people.find({\"name.first\" : \"John\",\n  \"name.last\" : \"Escalona\"})",
    "output": "[ { _id: 1, name: { first: 'John', last: 'Escalona' }, age: 45 } ]",
    "exit": 0
   }

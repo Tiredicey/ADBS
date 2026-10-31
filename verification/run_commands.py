@@ -47,7 +47,7 @@ HANDOUT_MOVIES = ('db.movies.deleteMany({})\n'
                   '  {"_id" : 1, "title" : "Back to the Future", "year" : 1985},\n'
                   '  {"_id" : 3, "title" : "Sixteen Candles", "year" : 1984}])')
 
-DUP_DOCS = ('[{"_id" : 3, "title" : "Sixteen Candles"},\n'
+DUP_DOCS = ('[\n  {"_id" : 3, "title" : "Sixteen Candles"},\n'
             '  {"_id" : 4, "title" : "The Terminator"},\n'
             '  {"_id" : 4, "title" : "The Princess Bride"},\n'
             '  {"_id" : 5, "title" : "Scarface"}]')
@@ -81,15 +81,15 @@ STEPS = [
 
     ("p2_findOne", 2, "cmd", 'db.users.findOne({"name" : "Joe"})'),
     ("p2_replaceOne", 2, "cmd", 'var Joe = db.users.findOne({"name" : "Joe"});\n'
-                                'Joe.relationships = {"friends" : Joe.friends, "enemies" : Joe.enemies};\n'
+                                'Joe.relationships = {"friends" : Joe.friends,\n  "enemies" : Joe.enemies};\n'
                                 'Joe.username = Joe.name;\n'
-                                'delete Joe.friends; delete Joe.enemies; delete Joe.name;\n'
+                                'delete Joe.friends; delete Joe.enemies;\ndelete Joe.name;\n'
                                 'db.users.replaceOne({"name" : "Joe"}, Joe)'),
     ("p2_replaceOne_after", 2, "check", 'db.users.findOne({"username" : "Joe"})'),
     ("p2_set_before", 2, "check", JOHN),
-    ("p2_set", 2, "cmd", 'db.users.updateOne({"name" : "John"},\n  {"$set" : {"favorite book" : "Green Eggs and Ham"}})'),
+    ("p2_set", 2, "cmd", 'db.users.updateOne({"name" : "John"},\n  {"$set" : {"favorite book" :\n    "Green Eggs and Ham"}})'),
     ("p2_set_after", 2, "check", JOHN),
-    ("p2_set_array", 2, "cmd", 'db.users.updateOne({"name" : "John"},\n  {"$set" : {"favorite book" :\n  ["Cat\'s Cradle", "Foundation Trilogy", "Ender\'s Game"]}})'),
+    ("p2_set_array", 2, "cmd", 'db.users.updateOne({"name" : "John"},\n  {"$set" : {"favorite book" :\n  ["Cat\'s Cradle", "Foundation Trilogy",\n   "Ender\'s Game"]}})'),
     ("p2_set_array_after", 2, "check", JOHN),
     ("p2_unset", 2, "cmd", 'db.users.updateOne({"name" : "John"},\n  {"$unset" : {"favorite book" : 1}})'),
     ("p2_unset_after", 2, "check", JOHN),
@@ -108,26 +108,26 @@ STEPS = [
     ("p3_range", 3, "cmd", 'db.users.find({"age" : {"$gte" : 18, "$lte" : 30}})'),
 
     ("p4_raffle_data", 4, "check", 'db.raffle.find()'),
-    ("p4_in", 4, "cmd", 'db.raffle.find({"ticket_no" : {"$in" : [725, 542, 390]}})'),
-    ("p4_or", 4, "cmd", 'db.raffle.find({"$or" : [{"ticket_no" : 725}, {"winner" : true}]})'),
+    ("p4_in", 4, "cmd", 'db.raffle.find({"ticket_no" :\n  {"$in" : [725, 542, 390]}})'),
+    ("p4_or", 4, "cmd", 'db.raffle.find({"$or" : [{"ticket_no" : 725},\n  {"winner" : true}]})'),
     ("p4_users_data", 4, "check", 'db.users.find()'),
-    ("p4_not", 4, "cmd", 'db.users.find({salary: {$not: {$gt: 10000}}}).pretty()'),
+    ("p4_not", 4, "cmd", 'db.users.find({salary:\n  {$not: {$gt: 10000}}}).pretty()'),
 
     ("p5_insert_before", 5, "check", FOOD),
-    ("p5_insert", 5, "cmd", 'db.food.insertOne({"_id" : 1, "fruit" : ["apple", "banana", "peach"]})\n'
-                            'db.food.insertOne({"_id" : 2, "fruit" : ["apple", "kumquat", "orange"]})\n'
-                            'db.food.insertOne({"_id" : 3, "fruit" : ["cherry", "banana", "apple"]})'),
+    ("p5_insert", 5, "cmd", 'db.food.insertOne({"_id" : 1,\n  "fruit" : ["apple", "banana", "peach"]})\n'
+                            'db.food.insertOne({"_id" : 2,\n  "fruit" : ["apple", "kumquat", "orange"]})\n'
+                            'db.food.insertOne({"_id" : 3,\n  "fruit" : ["cherry", "banana", "apple"]})'),
     ("p5_insert_after", 5, "check", FOOD),
     ("p5_scalar", 5, "cmd", 'db.food.find({"fruit" : "banana"})'),
     ("p5_all", 5, "cmd", 'db.food.find({fruit : {$all : ["apple", "banana"]}})'),
     ("p5_index", 5, "cmd", 'db.food.find({"fruit.2" : "peach"})'),
     ("p5_size", 5, "cmd", 'db.food.find({"fruit" : {"$size" : 3}})'),
 
-    ("p6_slice_first", 6, "cmd", 'db.blog.posts.findOne({"_id" : 1}, {"comments" : {"$slice" : 10}})'),
-    ("p6_slice_last", 6, "cmd", 'db.blog.posts.findOne({"_id" : 1}, {"comments" : {"$slice" : -10}})'),
-    ("p6_slice_page", 6, "cmd", 'db.blog.posts.findOne({"_id" : 1}, {"comments" : {"$slice" : [23, 10]}})'),
+    ("p6_slice_first", 6, "cmd", 'db.blog.posts.findOne({"_id" : 1},\n  {"comments" : {"$slice" : 10}})'),
+    ("p6_slice_last", 6, "cmd", 'db.blog.posts.findOne({"_id" : 1},\n  {"comments" : {"$slice" : -10}})'),
+    ("p6_slice_page", 6, "cmd", 'db.blog.posts.findOne({"_id" : 1},\n  {"comments" : {"$slice" : [23, 10]}})'),
     ("p6_people_data", 6, "check", 'db.people.find()'),
-    ("p6_dot", 6, "cmd", 'db.people.find({"name.first" : "John", "name.last" : "Escalona"})'),
+    ("p6_dot", 6, "cmd", 'db.people.find({"name.first" : "John",\n  "name.last" : "Escalona"})'),
 ]
 
 
