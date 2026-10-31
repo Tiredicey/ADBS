@@ -47,24 +47,37 @@ HANDOUT_MOVIES = ('db.movies.deleteMany({})\n'
                   '  {"_id" : 1, "title" : "Back to the Future", "year" : 1985},\n'
                   '  {"_id" : 3, "title" : "Sixteen Candles", "year" : 1984}])')
 
-UNORDERED = ('[{"_id" : 3, "title" : "Sixteen Candles"},\n'
-             '  {"_id" : 4, "title" : "The Terminator"},\n'
-             '  {"_id" : 4, "title" : "The Princess Bride"},\n'
-             '  {"_id" : 5, "title" : "Scarface"}]')
+DUP_DOCS = ('[{"_id" : 3, "title" : "Sixteen Candles"},\n'
+            '  {"_id" : 4, "title" : "The Terminator"},\n'
+            '  {"_id" : 4, "title" : "The Princess Bride"},\n'
+            '  {"_id" : 5, "title" : "Scarface"}]')
+
+IDS_345 = 'db.movies.find({"_id" : {"$in" : [3, 4, 5]}})'
+NO_ID = 'db.movies.find({}, {"_id" : 0})'
+JOHN = 'db.users.findOne({"name" : "John"}, {"_id" : 0})'
+BDAY = 'db.users.find({"birthday" : "10/13/1978"})'
+FOOD = 'db.food.find()'
 
 STEPS = [
+    ("p1_insertOne_before", 1, "check", 'db.movies.find()'),
     ("p1_insertOne", 1, "cmd", 'db.movies.insertOne({"title" : "Stand by Me"})'),
+    ("p1_insertOne_after", 1, "check", NO_ID),
+    ("p1_insertMany_before", 1, "check", NO_ID),
     ("p1_insertMany", 1, "cmd", 'db.movies.insertMany([{"title" : "Ghostbusters"},\n  {"title" : "E.T."},\n  {"title" : "Blade Runner"}])'),
-    ("p1_unordered", 1, "error", 'db.movies.insertMany(' + UNORDERED + ',\n  {"ordered" : false})'),
-    ("p1_unordered_find", 1, "check", 'db.movies.find({"_id" : {"$in" : [3, 4, 5]}})'),
-    ("p1_ordered", 1, "error", 'db.ordered.insertMany(' + UNORDERED + ')'),
-    ("p1_ordered_find", 1, "check", 'db.ordered.find()'),
+    ("p1_insertMany_after", 1, "check", NO_ID),
+    ("p1_unordered_before", 1, "check", IDS_345),
+    ("p1_unordered", 1, "error", 'db.movies.insertMany(' + DUP_DOCS + ',\n  {"ordered" : false})'),
+    ("p1_unordered_after", 1, "check", IDS_345),
+    ("p1_ordered_before", 1, "check", 'db.ordered.find()'),
+    ("p1_ordered", 1, "error", 'db.ordered.insertMany(' + DUP_DOCS + ')'),
+    ("p1_ordered_after", 1, "check", 'db.ordered.find()'),
+    ("p1_deleteOne_before", 1, "check", IDS_345),
     ("p1_deleteOne", 1, "cmd", 'db.movies.deleteOne({"_id" : 4})'),
-    ("p1_deleteOne_find", 1, "check", 'db.movies.find({"_id" : {"$in" : [3, 4, 5]}})'),
+    ("p1_deleteOne_after", 1, "check", IDS_345),
     ("p1_handout_movies", 1, "seed", HANDOUT_MOVIES),
-    ("p1_before_deleteMany", 1, "check", 'db.movies.find()'),
+    ("p1_deleteMany_before", 1, "check", 'db.movies.find()'),
     ("p1_deleteMany", 1, "cmd", 'db.movies.deleteMany({"year" : 1985})'),
-    ("p1_after_deleteMany", 1, "check", 'db.movies.find()'),
+    ("p1_deleteMany_after", 1, "check", 'db.movies.find()'),
 
     ("p2_findOne", 2, "cmd", 'db.users.findOne({"name" : "Joe"})'),
     ("p2_replaceOne", 2, "cmd", 'var Joe = db.users.findOne({"name" : "Joe"});\n'
@@ -72,32 +85,39 @@ STEPS = [
                                 'Joe.username = Joe.name;\n'
                                 'delete Joe.friends; delete Joe.enemies; delete Joe.name;\n'
                                 'db.users.replaceOne({"name" : "Joe"}, Joe)'),
-    ("p2_replaceOne_find", 2, "check", 'db.users.findOne({"username" : "Joe"})'),
+    ("p2_replaceOne_after", 2, "check", 'db.users.findOne({"username" : "Joe"})'),
+    ("p2_set_before", 2, "check", JOHN),
     ("p2_set", 2, "cmd", 'db.users.updateOne({"name" : "John"},\n  {"$set" : {"favorite book" : "Green Eggs and Ham"}})'),
-    ("p2_set_find", 2, "check", 'db.users.findOne({"name" : "John"})'),
+    ("p2_set_after", 2, "check", JOHN),
     ("p2_set_array", 2, "cmd", 'db.users.updateOne({"name" : "John"},\n  {"$set" : {"favorite book" :\n  ["Cat\'s Cradle", "Foundation Trilogy", "Ender\'s Game"]}})'),
-    ("p2_set_array_find", 2, "check", 'db.users.findOne({"name" : "John"})'),
+    ("p2_set_array_after", 2, "check", JOHN),
     ("p2_unset", 2, "cmd", 'db.users.updateOne({"name" : "John"},\n  {"$unset" : {"favorite book" : 1}})'),
-    ("p2_unset_find", 2, "check", 'db.users.findOne({"name" : "John"})'),
+    ("p2_unset_after", 2, "check", JOHN),
+    ("p2_books_before", 2, "check", 'db.books.findOne({}, {"_id" : 0})'),
     ("p2_books_set", 2, "cmd", 'db.books.updateOne({"author.name" : "Nicole"},\n  {"$set" : {"author.name" : "Nicole Tagayon"}})'),
-    ("p2_books_find", 2, "check", 'db.books.findOne()'),
+    ("p2_books_after", 2, "check", 'db.books.findOne({}, {"_id" : 0})'),
+    ("p2_updateMany_before", 2, "check", BDAY),
     ("p2_updateMany", 2, "cmd", 'db.users.updateMany({"birthday" : "10/13/1978"},\n  {"$set" : {"gift" : "Happy Birthday!"}})'),
-    ("p2_updateMany_find", 2, "check", 'db.users.find({"birthday" : "10/13/1978"})'),
+    ("p2_updateMany_after", 2, "check", BDAY),
 
+    ("p3_data", 3, "check", 'db.users.find()'),
     ("p3_lt", 3, "cmd", 'db.users.find({"age" : {"$lt" : 18}})'),
     ("p3_lte", 3, "cmd", 'db.users.find({"age" : {"$lte" : 18}})'),
     ("p3_gt", 3, "cmd", 'db.users.find({"age" : {"$gt" : 30}})'),
     ("p3_gte", 3, "cmd", 'db.users.find({"age" : {"$gte" : 30}})'),
     ("p3_range", 3, "cmd", 'db.users.find({"age" : {"$gte" : 18, "$lte" : 30}})'),
 
+    ("p4_raffle_data", 4, "check", 'db.raffle.find()'),
     ("p4_in", 4, "cmd", 'db.raffle.find({"ticket_no" : {"$in" : [725, 542, 390]}})'),
     ("p4_or", 4, "cmd", 'db.raffle.find({"$or" : [{"ticket_no" : 725}, {"winner" : true}]})'),
+    ("p4_users_data", 4, "check", 'db.users.find()'),
     ("p4_not", 4, "cmd", 'db.users.find({salary: {$not: {$gt: 10000}}}).pretty()'),
 
+    ("p5_insert_before", 5, "check", FOOD),
     ("p5_insert", 5, "cmd", 'db.food.insertOne({"_id" : 1, "fruit" : ["apple", "banana", "peach"]})\n'
                             'db.food.insertOne({"_id" : 2, "fruit" : ["apple", "kumquat", "orange"]})\n'
                             'db.food.insertOne({"_id" : 3, "fruit" : ["cherry", "banana", "apple"]})'),
-    ("p5_find_all", 5, "check", 'db.food.find()'),
+    ("p5_insert_after", 5, "check", FOOD),
     ("p5_scalar", 5, "cmd", 'db.food.find({"fruit" : "banana"})'),
     ("p5_all", 5, "cmd", 'db.food.find({fruit : {$all : ["apple", "banana"]}})'),
     ("p5_index", 5, "cmd", 'db.food.find({"fruit.2" : "peach"})'),
@@ -106,6 +126,7 @@ STEPS = [
     ("p6_slice_first", 6, "cmd", 'db.blog.posts.findOne({"_id" : 1}, {"comments" : {"$slice" : 10}})'),
     ("p6_slice_last", 6, "cmd", 'db.blog.posts.findOne({"_id" : 1}, {"comments" : {"$slice" : -10}})'),
     ("p6_slice_page", 6, "cmd", 'db.blog.posts.findOne({"_id" : 1}, {"comments" : {"$slice" : [23, 10]}})'),
+    ("p6_people_data", 6, "check", 'db.people.find()'),
     ("p6_dot", 6, "cmd", 'db.people.find({"name.first" : "John", "name.last" : "Escalona"})'),
 ]
 

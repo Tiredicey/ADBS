@@ -11,11 +11,35 @@
    "exit": 0
   },
   {
+   "id": "p1_insertOne_before",
+   "part": 1,
+   "role": "check",
+   "code": "db.movies.find()",
+   "output": "",
+   "exit": 0
+  },
+  {
    "id": "p1_insertOne",
    "part": 1,
    "role": "cmd",
    "code": "db.movies.insertOne({\"title\" : \"Stand by Me\"})",
-   "output": "{\n  acknowledged: true,\n  insertedId: ObjectId('6ae46b1b82cee3acaf544ca7')\n}",
+   "output": "{\n  acknowledged: true,\n  insertedId: ObjectId('6ae576e8f93072a647544ca7')\n}",
+   "exit": 0
+  },
+  {
+   "id": "p1_insertOne_after",
+   "part": 1,
+   "role": "check",
+   "code": "db.movies.find({}, {\"_id\" : 0})",
+   "output": "[ { title: 'Stand by Me' } ]",
+   "exit": 0
+  },
+  {
+   "id": "p1_insertMany_before",
+   "part": 1,
+   "role": "check",
+   "code": "db.movies.find({}, {\"_id\" : 0})",
+   "output": "[ { title: 'Stand by Me' } ]",
    "exit": 0
   },
   {
@@ -23,7 +47,23 @@
    "part": 1,
    "role": "cmd",
    "code": "db.movies.insertMany([{\"title\" : \"Ghostbusters\"},\n  {\"title\" : \"E.T.\"},\n  {\"title\" : \"Blade Runner\"}])",
-   "output": "{\n  acknowledged: true,\n  insertedIds: {\n    '0': ObjectId('6ae46b1c6105fbbbe9544ca7'),\n    '1': ObjectId('6ae46b1c6105fbbbe9544ca8'),\n    '2': ObjectId('6ae46b1c6105fbbbe9544ca9')\n  }\n}",
+   "output": "{\n  acknowledged: true,\n  insertedIds: {\n    '0': ObjectId('6ae576e997ec7621c2544ca7'),\n    '1': ObjectId('6ae576e997ec7621c2544ca8'),\n    '2': ObjectId('6ae576e997ec7621c2544ca9')\n  }\n}",
+   "exit": 0
+  },
+  {
+   "id": "p1_insertMany_after",
+   "part": 1,
+   "role": "check",
+   "code": "db.movies.find({}, {\"_id\" : 0})",
+   "output": "[\n  { title: 'Stand by Me' },\n  { title: 'Ghostbusters' },\n  { title: 'E.T.' },\n  { title: 'Blade Runner' }\n]",
+   "exit": 0
+  },
+  {
+   "id": "p1_unordered_before",
+   "part": 1,
+   "role": "check",
+   "code": "db.movies.find({\"_id\" : {\"$in\" : [3, 4, 5]}})",
+   "output": "",
    "exit": 0
   },
   {
@@ -35,11 +75,19 @@
    "exit": 1
   },
   {
-   "id": "p1_unordered_find",
+   "id": "p1_unordered_after",
    "part": 1,
    "role": "check",
    "code": "db.movies.find({\"_id\" : {\"$in\" : [3, 4, 5]}})",
    "output": "[\n  { _id: 3, title: 'Sixteen Candles' },\n  { _id: 4, title: 'The Terminator' },\n  { _id: 5, title: 'Scarface' }\n]",
+   "exit": 0
+  },
+  {
+   "id": "p1_ordered_before",
+   "part": 1,
+   "role": "check",
+   "code": "db.ordered.find()",
+   "output": "",
    "exit": 0
   },
   {
@@ -51,11 +99,19 @@
    "exit": 1
   },
   {
-   "id": "p1_ordered_find",
+   "id": "p1_ordered_after",
    "part": 1,
    "role": "check",
    "code": "db.ordered.find()",
    "output": "[\n  { _id: 3, title: 'Sixteen Candles' },\n  { _id: 4, title: 'The Terminator' }\n]",
+   "exit": 0
+  },
+  {
+   "id": "p1_deleteOne_before",
+   "part": 1,
+   "role": "check",
+   "code": "db.movies.find({\"_id\" : {\"$in\" : [3, 4, 5]}})",
+   "output": "[\n  { _id: 3, title: 'Sixteen Candles' },\n  { _id: 4, title: 'The Terminator' },\n  { _id: 5, title: 'Scarface' }\n]",
    "exit": 0
   },
   {
@@ -67,7 +123,7 @@
    "exit": 0
   },
   {
-   "id": "p1_deleteOne_find",
+   "id": "p1_deleteOne_after",
    "part": 1,
    "role": "check",
    "code": "db.movies.find({\"_id\" : {\"$in\" : [3, 4, 5]}})",
@@ -83,7 +139,7 @@
    "exit": 0
   },
   {
-   "id": "p1_before_deleteMany",
+   "id": "p1_deleteMany_before",
    "part": 1,
    "role": "check",
    "code": "db.movies.find()",
@@ -99,7 +155,7 @@
    "exit": 0
   },
   {
-   "id": "p1_after_deleteMany",
+   "id": "p1_deleteMany_after",
    "part": 1,
    "role": "check",
    "code": "db.movies.find()",
@@ -131,11 +187,19 @@
    "exit": 0
   },
   {
-   "id": "p2_replaceOne_find",
+   "id": "p2_replaceOne_after",
    "part": 2,
    "role": "check",
    "code": "db.users.findOne({\"username\" : \"Joe\"})",
    "output": "{\n  _id: ObjectId('4b2b9f67a1f631733d917a7a'),\n  relationships: { friends: 32, enemies: 2 },\n  username: 'Joe'\n}",
+   "exit": 0
+  },
+  {
+   "id": "p2_set_before",
+   "part": 2,
+   "role": "check",
+   "code": "db.users.findOne({\"name\" : \"John\"}, {\"_id\" : 0})",
+   "output": "{ name: 'John', age: 24, sex: 'male', location: 'Taytay' }",
    "exit": 0
   },
   {
@@ -147,11 +211,11 @@
    "exit": 0
   },
   {
-   "id": "p2_set_find",
+   "id": "p2_set_after",
    "part": 2,
    "role": "check",
-   "code": "db.users.findOne({\"name\" : \"John\"})",
-   "output": "{\n  _id: ObjectId('4b253b067525f35f94b60a31'),\n  name: 'John',\n  age: 24,\n  sex: 'male',\n  location: 'Taytay',\n  'favorite book': 'Green Eggs and Ham'\n}",
+   "code": "db.users.findOne({\"name\" : \"John\"}, {\"_id\" : 0})",
+   "output": "{\n  name: 'John',\n  age: 24,\n  sex: 'male',\n  location: 'Taytay',\n  'favorite book': 'Green Eggs and Ham'\n}",
    "exit": 0
   },
   {
@@ -163,11 +227,11 @@
    "exit": 0
   },
   {
-   "id": "p2_set_array_find",
+   "id": "p2_set_array_after",
    "part": 2,
    "role": "check",
-   "code": "db.users.findOne({\"name\" : \"John\"})",
-   "output": "{\n  _id: ObjectId('4b253b067525f35f94b60a31'),\n  name: 'John',\n  age: 24,\n  sex: 'male',\n  location: 'Taytay',\n  'favorite book': [ \"Cat's Cradle\", 'Foundation Trilogy', \"Ender's Game\" ]\n}",
+   "code": "db.users.findOne({\"name\" : \"John\"}, {\"_id\" : 0})",
+   "output": "{\n  name: 'John',\n  age: 24,\n  sex: 'male',\n  location: 'Taytay',\n  'favorite book': [ \"Cat's Cradle\", 'Foundation Trilogy', \"Ender's Game\" ]\n}",
    "exit": 0
   },
   {
@@ -179,11 +243,19 @@
    "exit": 0
   },
   {
-   "id": "p2_unset_find",
+   "id": "p2_unset_after",
    "part": 2,
    "role": "check",
-   "code": "db.users.findOne({\"name\" : \"John\"})",
-   "output": "{\n  _id: ObjectId('4b253b067525f35f94b60a31'),\n  name: 'John',\n  age: 24,\n  sex: 'male',\n  location: 'Taytay'\n}",
+   "code": "db.users.findOne({\"name\" : \"John\"}, {\"_id\" : 0})",
+   "output": "{ name: 'John', age: 24, sex: 'male', location: 'Taytay' }",
+   "exit": 0
+  },
+  {
+   "id": "p2_books_before",
+   "part": 2,
+   "role": "check",
+   "code": "db.books.findOne({}, {\"_id\" : 0})",
+   "output": "{\n  title: 'MongoDB-2019',\n  author: { name: 'Nicole', email: 'Nic@example.com' }\n}",
    "exit": 0
   },
   {
@@ -195,11 +267,19 @@
    "exit": 0
   },
   {
-   "id": "p2_books_find",
+   "id": "p2_books_after",
    "part": 2,
    "role": "check",
-   "code": "db.books.findOne()",
-   "output": "{\n  _id: ObjectId('4b253b067525f35f94b60a31'),\n  title: 'MongoDB-2019',\n  author: { name: 'Nicole Tagayon', email: 'Nic@example.com' }\n}",
+   "code": "db.books.findOne({}, {\"_id\" : 0})",
+   "output": "{\n  title: 'MongoDB-2019',\n  author: { name: 'Nicole Tagayon', email: 'Nic@example.com' }\n}",
+   "exit": 0
+  },
+  {
+   "id": "p2_updateMany_before",
+   "part": 2,
+   "role": "check",
+   "code": "db.users.find({\"birthday\" : \"10/13/1978\"})",
+   "output": "[\n  { _id: 1, birthday: '10/13/1978' },\n  { _id: 2, birthday: '10/13/1978' },\n  { _id: 3, birthday: '10/13/1978' }\n]",
    "exit": 0
   },
   {
@@ -211,7 +291,7 @@
    "exit": 0
   },
   {
-   "id": "p2_updateMany_find",
+   "id": "p2_updateMany_after",
    "part": 2,
    "role": "check",
    "code": "db.users.find({\"birthday\" : \"10/13/1978\"})",
@@ -224,6 +304,14 @@
    "role": "setup",
    "code": "use adbs_part3\ndb.dropDatabase()\ndb.users.insertMany([{\"_id\" : 1, \"name\" : \"Ana\", \"age\" : 17},\n  {\"_id\" : 2, \"name\" : \"Ben\", \"age\" : 18},\n  {\"_id\" : 3, \"name\" : \"Cara\", \"age\" : 24},\n  {\"_id\" : 4, \"name\" : \"Dan\", \"age\" : 30},\n  {\"_id\" : 5, \"name\" : \"Eli\", \"age\" : 31}])",
    "output": "{\n  acknowledged: true,\n  insertedIds: { '0': 1, '1': 2, '2': 3, '3': 4, '4': 5 }\n}",
+   "exit": 0
+  },
+  {
+   "id": "p3_data",
+   "part": 3,
+   "role": "check",
+   "code": "db.users.find()",
+   "output": "[\n  { _id: 1, name: 'Ana', age: 17 },\n  { _id: 2, name: 'Ben', age: 18 },\n  { _id: 3, name: 'Cara', age: 24 },\n  { _id: 4, name: 'Dan', age: 30 },\n  { _id: 5, name: 'Eli', age: 31 }\n]",
    "exit": 0
   },
   {
@@ -275,6 +363,14 @@
    "exit": 0
   },
   {
+   "id": "p4_raffle_data",
+   "part": 4,
+   "role": "check",
+   "code": "db.raffle.find()",
+   "output": "[\n  { _id: 1, ticket_no: 725, winner: false },\n  { _id: 2, ticket_no: 542, winner: false },\n  { _id: 3, ticket_no: 390, winner: false },\n  { _id: 4, ticket_no: 111, winner: true },\n  { _id: 5, ticket_no: 222, winner: false }\n]",
+   "exit": 0
+  },
+  {
    "id": "p4_in",
    "part": 4,
    "role": "cmd",
@@ -288,6 +384,14 @@
    "role": "cmd",
    "code": "db.raffle.find({\"$or\" : [{\"ticket_no\" : 725}, {\"winner\" : true}]})",
    "output": "[\n  { _id: 1, ticket_no: 725, winner: false },\n  { _id: 4, ticket_no: 111, winner: true }\n]",
+   "exit": 0
+  },
+  {
+   "id": "p4_users_data",
+   "part": 4,
+   "role": "check",
+   "code": "db.users.find()",
+   "output": "[\n  { _id: 1, name: 'Rhea', salary: 8000 },\n  { _id: 2, name: 'Mark', salary: 10000 },\n  { _id: 3, name: 'Liza', salary: 15000 }\n]",
    "exit": 0
   },
   {
@@ -307,6 +411,14 @@
    "exit": 0
   },
   {
+   "id": "p5_insert_before",
+   "part": 5,
+   "role": "check",
+   "code": "db.food.find()",
+   "output": "",
+   "exit": 0
+  },
+  {
    "id": "p5_insert",
    "part": 5,
    "role": "cmd",
@@ -315,7 +427,7 @@
    "exit": 0
   },
   {
-   "id": "p5_find_all",
+   "id": "p5_insert_after",
    "part": 5,
    "role": "check",
    "code": "db.food.find()",
@@ -384,6 +496,14 @@
    "role": "cmd",
    "code": "db.blog.posts.findOne({\"_id\" : 1}, {\"comments\" : {\"$slice\" : [23, 10]}})",
    "output": "{\n  _id: 1,\n  title: 'ADBS',\n  comments: [\n    'c24', 'c25', 'c26',\n    'c27', 'c28', 'c29',\n    'c30', 'c31', 'c32',\n    'c33'\n  ]\n}",
+   "exit": 0
+  },
+  {
+   "id": "p6_people_data",
+   "part": 6,
+   "role": "check",
+   "code": "db.people.find()",
+   "output": "[ { _id: 1, name: { first: 'John', last: 'Escalona' }, age: 45 } ]",
    "exit": 0
   },
   {
