@@ -1,7 +1,7 @@
 {
  "ADBS_freefall_1920x1080.mp4": {
   "duration_s": 35.286,
-  "size_mb": 28.71,
+  "size_mb": 28.82,
   "streams": [
    {
     "codec_name": "h264",
@@ -20,11 +20,11 @@
   "true_peak_dbfs": -1.4,
   "scene_cuts_gt_0.3": 0,
   "cuts_per_min": 0.0,
-  "near_still_frame_share": 0.222,
+  "near_still_frame_share": 0.216,
   "max_flashes_in_any_1s": 0,
   "max_frame_luma_jump": 0.0064,
   "visual_pulse_offset_median_s": -0.0667,
-  "visual_pulse_offset_sd_s": 0.0674,
+  "visual_pulse_offset_sd_s": 0.0707,
   "visual_pulse_n": 72,
   "design_visual_lead_s": -0.1,
   "librosa_tempo_bpm": 143.55,

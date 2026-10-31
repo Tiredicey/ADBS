@@ -333,7 +333,7 @@
   "time_s": 17.0429,
   "bar": 10,
   "event": "hero_text_in",
-  "detail": "$all \u00b7 $size \u00b7 fruit.2"
+  "detail": "$all \u00b7 $size"
  },
  {
   "time_s": 17.1429,
