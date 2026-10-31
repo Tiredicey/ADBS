@@ -30,12 +30,8 @@ PARTS = [
         "n": 1, "title": "Create & Delete", "kicker": "insertOne · insertMany · deleteOne · deleteMany",
         "takeaway": "Documents in, documents out.", "source": "07 Handout p.2-3; 08 Handout p.1",
         "setup": SETUP[1] + "\n// before the deleteMany slide, run:\n" + HANDOUT_MOVIES,
-        "intro": "Hello, I am [your name]. Part 1 is Create and Delete. Every slide shows the data before, the command, and the data after. Watch what changes.",
+        "intro": "Hello, I am [your name]. Part 1 is Create and Delete. First, two words: in MongoDB, a table is called a collection, and a row is called a document. Every slide shows the data before, the command, and the data after. Watch what changes.",
         "slides": [
-            {"kind": "table", "title": "Tables are collections. Rows are documents.", "takeaway": "Same idea, new words.",
-             "headers": ["SQL", "MongoDB"], "rows": [["Database", "Database"], ["Table", "Collection"], ["Row", "Document"], ["Column", "Field"]],
-             "say": ["First, four words. In SQL we say table, row and column. In MongoDB we say collection, document and field. A collection is like a table with a flexible schema. A document is one record. Every document has a unique underscore I D."],
-             "source": "07 Handout p.2-3, Table 2"},
             {"kind": "flow", "title": "insertOne adds one document", "takeaway": "One document in. MongoDB adds the _id.",
              "before": "p1_insertOne_before", "cmd": "p1_insertOne", "after": "p1_insertOne_after",
              "new": ["title: 'Stand by Me'"],
@@ -177,9 +173,9 @@ PARTS = [
         ],
     },
     {
-        "n": 5, "title": "Querying Arrays", "kicker": "inserting arrays · $all · key.index · $size",
+        "n": 5, "title": "Querying Arrays", "kicker": "inserting arrays · $all · $size",
         "takeaway": "Arrays answer like single values.", "source": "08 Handout p.4", "setup": SETUP[5],
-        "intro": "Hello, I am [your name]. Part 5 is querying arrays. An array is a list of values inside one field, written in square brackets. We will insert arrays, then query them four ways.",
+        "intro": "Hello, I am [your name]. Part 5 is querying arrays. An array is a list of values inside one field, written in square brackets. We will insert arrays, then query them three ways.",
         "slides": [
             {"kind": "flow", "title": "Inserting elements in an array", "takeaway": "Square brackets make an array.",
              "before": "p5_insert_before", "cmd": "p5_insert", "after": "p5_insert_after",
@@ -196,10 +192,6 @@ PARTS = [
              "finds": ["p5_all"],
              "say": ["What if we need more than one element? The handout uses dollar all. It matches arrays that contain every element in the list. We ask for apple and banana. Baskets 1 and 3 have both. Basket 2 has apple but no banana, so it is out. Order does not matter: basket 3 has banana before apple, and it still matches."],
              "source": "08 Handout p.4"},
-            {"kind": "find", "title": "One position: key.index", "takeaway": "Count from zero.",
-             "finds": ["p5_index"],
-             "say": ["To check one exact position, write the key, a dot, and the index number. Counting starts at zero, so fruit dot 0 is the first fruit and fruit dot 2 is the third. We ask for peach in position 2. Only basket 1 has peach in third place."],
-             "source": "08 Handout p.4"},
             {"kind": "find", "title": "$size: match by number of elements", "takeaway": "$size counts the elements.",
              "finds": ["p5_size"],
              "say": ["Dollar size matches arrays with exactly that many elements. Every basket has 3 fruits, so dollar size 3 returns all three. A basket with 2 or 4 fruits would not match. Arrays answer like single values."],
@@ -207,8 +199,8 @@ PARTS = [
         ],
     },
     {
-        "n": 6, "title": "$slice & Embedded Documents", "kicker": "$slice · dot notation · embedded data",
-        "takeaway": "Trim what you see. Reach inside with a dot.", "source": "08 Handout p.4-5", "setup": SETUP[6],
+        "n": 6, "title": "$slice & Embedded Documents", "kicker": "$slice · embedded documents",
+        "takeaway": "Trim what you see. Reach inside with a dot.", "source": "08 Handout p.4", "setup": SETUP[6],
         "intro": "Hello, I am [your name]. Part 6 is dollar slice, and embedded documents: documents inside documents.",
         "slides": [
             {"kind": "find", "title": "$slice 10: the first 10", "takeaway": "Positive counts from the front.",
@@ -225,14 +217,8 @@ PARTS = [
              "source": "08 Handout p.4"},
             {"kind": "find", "title": "Query inside an embedded document", "takeaway": "Use the dot to reach inside.",
              "finds": ["p6_dot"],
-             "say": ["An embedded document is a document inside another document. Here, John's name field holds a whole document with first and last. To query inside it, use dot notation, in quotes: name dot first, and name dot last. Both must match, and John Escalona comes back."],
+             "say": ["An embedded document is a document inside another document. Here, John's name field holds a whole document with first and last. To query inside it, use dot notation, in quotes: name dot first, and name dot last. Both must match, and John Escalona comes back. To sum up: trim what you see with slice, and reach inside with a dot."],
              "source": "08 Handout p.4"},
-            {"kind": "text", "title": "Embedded data vs references", "takeaway": "Embed together, or link apart.",
-             "body": ["Embedded: related data in one document (denormalized).",
-                      "One database operation reads or changes it all.",
-                      "References: links between documents (normalized)."],
-             "say": ["Why embed at all? The handout's data model section explains. Embedded documents keep related data together in one document. This is called a denormalized model. The benefit: an application can read and change related data in a single database operation. The other option is references, which link one document to another. That is a normalized model. To sum up: trim what you see with slice, and reach inside with a dot."],
-             "source": "08 Handout p.4-5"},
         ],
     },
     {
@@ -317,7 +303,7 @@ CHEATSHEET = [
     ("Fields", "$set  $unset"),
     ("Compare", "$lt  $lte  $gt  $gte"),
     ("Choose", "$in  $or  $not"),
-    ("Arrays", "$all  $size  \"fruit.2\"  $slice"),
+    ("Arrays", "$all  $size  $slice  \"name.first\""),
     ("Cloud", "Public · Private · Hybrid | SaaS · PaaS · IaaS"),
 ]
 

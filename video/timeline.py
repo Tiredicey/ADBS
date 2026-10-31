@@ -15,7 +15,7 @@ SECTIONS = [
     {"bar": 4, "kicker": "PART 2", "meme": "SANA ALL MAY GIFT", "hero": "findOne · updateMany", "sub": "Find it first. Then change it."},
     {"bar": 6, "kicker": "PART 3", "hero": "$lt  $lte  $gt  $gte", "sub": "The e means equal is allowed."},
     {"bar": 8, "kicker": "PART 4", "meme": "$not = CHAROT", "hero": "$in · $or · $not", "sub": "One field, many values. Many fields, any match."},
-    {"bar": 10, "kicker": "PART 5", "hero": "$all · $size · fruit.2", "sub": "Arrays answer like single values."},
+    {"bar": 10, "kicker": "PART 5", "hero": "$all · $size", "sub": "Arrays answer like single values."},
     {"bar": 12, "kicker": "PART 6", "hero": "$slice · name.first", "sub": "Trim what you see. Reach inside with a dot."},
     {"bar": 14, "kicker": "PART 7", "hero": "Public · Private · Hybrid", "sub": "Rent it, own it, or mix both."},
     {"bar": 16, "kicker": "PART 8", "hero": "SaaS · PaaS · IaaS", "sub": "Use it, build on it, or rent the machine."},

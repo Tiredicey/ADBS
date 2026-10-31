@@ -63,7 +63,7 @@ EMPTY = "// no output: the collection is empty"
 # The user's own edits to the shared deck (2026-10-31), kept so a rebuild never undoes them.
 SHOW_VIDEO = False          # user deleted the opener slide; set True to put it back
 SHOW_REFERENCES = False     # user deleted the References slide
-REMOVED_SLIDES = set()      # restored "Tables are collections": the Part 1 topic list requires it
+REMOVED_SLIDES = set()      # topic list is enforced in content.py; "Tables are collections" now lives in the Part 1 intro script
 SECTION = "Section 3.1A"
 NO_BLANKS_FOR = ("Presenter", "Group:", "Section:", "Date:")       # no name/date fill-ins anywhere
 FLOW_MAX = 8        # output lines in a BEFORE/AFTER panel: label + check + 8 + band fit 5.65 in
