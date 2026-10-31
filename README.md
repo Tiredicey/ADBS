@@ -8,8 +8,6 @@ IT2003 Advanced Database Systems group presentation. Content follows the 07, 08 
 |---|---|---|
 | `02_GROUP_DECK/ADBS_GROUP_DECK.pptx` | Shared deck. Part 1 finished; Parts 2-8 have orange paste boxes and blanks. Slide 2 (HELPER) tells members what to do. | Upload to OneDrive, share the edit link |
 | `01_FULL_DECK/ADBS_FULL_answer_key.pptx` | Every part finished, with verbatim scripts in the speaker notes | Group leader only |
-| `video/ADBS_opener_deck.mp4` | 35 s opener, 9.0 MB, ready to insert into PowerPoint | Optional |
-| `video/ADBS_freefall_*.mp4` | Full-quality opener (landscape and vertical) | Optional |
 | `verification/` | Runs every command on a real MongoDB 8.0.4 server; `results.json` holds the raw outputs | Proof the outputs are real |
 | `tools/audit_deck.py` | Measures font sizes, words per slide and WCAG contrast | Checks |
 
@@ -21,6 +19,10 @@ IT2003 Advanced Database Systems group presentation. Content follows the 07, 08 
 - Every colour pair passes WCAG AA 4.5:1.
 - Each part's script fits 3 minutes: the longest is 167 s at a slow 100 words per minute.
 - Edits the user made to the shared deck on 2026-10-31 are built in (`SHOW_VIDEO`, `SHOW_REFERENCES`, `REMOVED_SLIDES` in `src/build_deck.py`). No name, presenter or date blanks anywhere.
+
+## Opener video
+
+Scratched on 2026-10-31 at the group's request. The last version (render scripts, score, measurements) is in git history at commit `b1e4eb7`.
 
 ## Rebuild
 
