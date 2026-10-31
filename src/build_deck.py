@@ -137,7 +137,7 @@ def blank_panel(slide, x, y, w, h):
         [{"t": "PASTE YOUR SCREENSHOT HERE", "bold": True, "color": SIGNAL, "size": 16}],
         [{"t": "1. Copy the command above into the MongoDB shell, press Enter.", "size": 12}],
         [{"t": "2. Screenshot the result (Windows: Win + Shift + S).", "size": 12}],
-        [{"t": "3. Click this box, press Delete, then Ctrl + V.", "size": 12}],
+        [{"t": "3. Click this box, press Delete, press Ctrl + V, then drag the picture here.", "size": 12}],
     ], anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER, pad=0.2, target=shp)
 
 
@@ -197,7 +197,7 @@ def slide_howto(deck):
         ("Open the MongoDB shell", "MongoDB Compass → connect → click  >_ Open MongoDB shell  (top right)."),
         ("Run the setup", "Your part starts with a SETUP slide. Copy all its lines, paste in the shell, press Enter."),
         ("Run each command", "Copy the command on each slide, paste in the shell, press Enter."),
-        ("Paste a screenshot", "Win + Shift + S, select the result, then click the orange box → Delete → Ctrl + V."),
+        ("Paste a screenshot", "Win + Shift + S (Mac: Cmd + Shift + 4). Click the orange box → Delete → Ctrl + V → drag the picture into place."),
         ("Fill the blanks", "Replace every ______ with your own words. Use the handout page in the footer."),
         ("Read the speaker notes", "View → Notes. They say what to explain. Practice saying the soundbite."),
     ]
