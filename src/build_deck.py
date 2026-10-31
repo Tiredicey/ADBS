@@ -49,7 +49,8 @@ SANS, MONO = "Arial", "Courier New"
 FLOOR = 28          # pt, smallest audience text (see README for the viewing-distance maths)
 MONO_PT = 28
 WIDTH = 52          # characters per code/output line at 28 pt inside a panel
-LINE = 0.45         # inches per 28 pt line (font height 1.133 em, rounded up)
+LINE_PT = 32        # exact line pitch for code/output; fixed in points so PowerPoint and LibreOffice agree
+LINE = LINE_PT / 72
 SW, SH = 13.333, 7.5
 M = 0.45            # side margin: keeps content inside the TV's safe area
 CW = SW - 2 * M
@@ -194,23 +195,33 @@ def stack_h(panels, band):
     return h + (GAP + BAND if band else 0)
 
 
+def _splits(n):
+    """Every way to cut n panels into contiguous groups, fewest groups first."""
+    from itertools import combinations
+    for k in range(1, n + 1):
+        for cuts in combinations(range(1, n), k - 1):
+            b = (0,) + cuts + (n,)
+            yield [(b[i], b[i + 1]) for i in range(k)]
+
+
 def pack(panels):
+    """Fewest slides; among those, the most even fill (no near-empty slide next to a full one)."""
     avail = BOTTOM - TOP
-    slides, cur = [], []
-    for p in panels:
-        if cur and stack_h(cur + [p], False) > avail:
-            slides.append(cur)
-            cur = []
-        cur.append(p)
-    slides.append(cur)
-    if stack_h(slides[-1], True) > avail and len(slides[-1]) > 1:
-        last = slides.pop()
-        slides += [last[:-1], last[-1:]]
-    for i, sp in enumerate(slides):
-        need = stack_h(sp, i == len(slides) - 1)
-        if need > avail + 1e-6:
-            raise SystemExit(f"panel too tall: {[p['label'] for p in sp]} needs {need:.2f} in, has {avail:.2f}")
-    return slides
+    best, best_k = None, None
+    for split in _splits(len(panels)):
+        if best_k is not None and len(split) > best_k:
+            break
+        groups = [panels[a:b] for a, b in split]
+        hs = [stack_h(g, i == len(groups) - 1) for i, g in enumerate(groups)]
+        if max(hs) > avail + 1e-6:
+            continue
+        score = (max(hs) - min(hs), -min(hs))
+        if best is None or score < best[0]:
+            best, best_k = (score, groups), len(split)
+    if best is None:
+        tall = max(panels, key=lambda p: stack_h([p], True))
+        raise SystemExit(f"panel too tall: {tall['label']} needs {stack_h([tall], True):.2f} in, has {avail:.2f}")
+    return best[1]
 
 
 def styled(t, kind, marks, deck):
@@ -265,7 +276,7 @@ def draw_panel(slide, y, p, deck):
         if len(t) > WIDTH:
             raise SystemExit(f"line too long ({len(t)}): {t}")
         paras.append(styled(t, kind, p.get("marks", {}), deck))
-    text(slide, M + 0.16, y + 0.1, CW - 0.24, h - 0.12, paras, size=MONO_PT, font=MONO, wrap=False)
+    text(slide, M + 0.16, y + 0.1, CW - 0.24, h - 0.12, paras, size=MONO_PT, font=MONO, wrap=False, spacing=Pt(LINE_PT))
     return h
 
 
@@ -364,6 +375,7 @@ def plan(deck, part, sl):
             panels = find_panels(sl, deck if not bp else _GroupView(deck), data=sl["kind"] == "data")
         groups = pack(panels)
         return [{"kind": "panels", "panels": g, "band": sl["takeaway"] if i == len(groups) - 1 else None,
+                 "next": groups[i + 1][0]["label"].strip() if i + 1 < len(groups) else None,
                  "say": " ".join(p["say"] for p in g if p.get("say")), "sl": sl, "bp": bp} for i, g in enumerate(groups)]
     return [{"kind": sl["kind"], "sl": sl, "band": sl["takeaway"], "say": " ".join(sl["say"]), "bp": bp}]
 
@@ -399,6 +411,9 @@ def render(deck, part, spec, ctx):
         draw_list(s, sl, bp)
     if spec["band"]:
         band(s, spec["band"])
+    elif spec.get("next") and kind == "panels" and stack_h(spec["panels"], True) <= BOTTOM - TOP + 1e-6:
+        text(s, M, BOTTOM - BAND, CW, BAND, "Next: " + spec["next"] + "  →", size=FLOOR, color="MUTED",
+             anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.RIGHT, pad=0.18)
     footer(s, ctx, sl["source"], verified=kind == "panels" and not bp)
     notes(s, say_notes(ctx, spec["say"], sl["source"], todo=bp))
 
@@ -406,7 +421,7 @@ def render(deck, part, spec, ctx):
 def draw_table(s, sl, bp):
     rows, cols = len(sl["rows"]) + 1, len(sl["headers"])
     widths = {2: [3.6, CW - 3.6], 3: [3.0, CW - 6.0, 3.0]}[cols]
-    rh = 0.78
+    rh = min(1.0, (BOTTOM - BAND - GAP - TOP - 0.15) / rows)   # fill the space above the band
     tbl = s.shapes.add_table(rows, cols, I(M), I(TOP + 0.15), I(CW), I(rh * rows)).table
     for c, wd in enumerate(widths):
         tbl.columns[c].width = I(wd)
