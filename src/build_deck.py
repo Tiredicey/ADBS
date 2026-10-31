@@ -369,10 +369,11 @@ def plan(deck, part, sl):
     if sl["title"] in REMOVED_SLIDES:
         return []
     if sl["kind"] in ("flow", "find", "data"):
+        view = _View(deck, group=bp)      # Part 1 is finished even in the group deck
         if sl["kind"] == "flow":
-            panels = flow_panels(sl, deck) if not bp else flow_panels(sl, _GroupView(deck))
+            panels = flow_panels(sl, view)
         else:
-            panels = find_panels(sl, deck if not bp else _GroupView(deck), data=sl["kind"] == "data")
+            panels = find_panels(sl, view, data=sl["kind"] == "data")
         groups = pack(panels)
         return [{"kind": "panels", "panels": g, "band": sl["takeaway"] if i == len(groups) - 1 else None,
                  "next": groups[i + 1][0]["label"].strip() if i + 1 < len(groups) else None,
@@ -380,12 +381,12 @@ def plan(deck, part, sl):
     return [{"kind": sl["kind"], "sl": sl, "band": sl["takeaway"], "say": " ".join(sl["say"]), "bp": bp}]
 
 
-class _GroupView:
-    """Deck proxy that makes panel builders produce paste boxes (group deck, Parts 2-8)."""
-    group = True
+class _View:
+    """Deck proxy: group=True makes panel builders produce paste boxes (group deck, Parts 2-8 only)."""
 
-    def __init__(self, deck):
+    def __init__(self, deck, group):
         self._d = deck
+        self.group = group
 
     def __getattr__(self, k):
         return getattr(self._d, k)

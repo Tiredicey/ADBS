@@ -91,7 +91,7 @@
   "parts": [
    {
     "part": 1,
-    "slides": 15,
+    "slides": 14,
     "words": 250,
     "seconds_at_100_130_150_wpm": [
      150,
@@ -170,7 +170,7 @@
     ]
    }
   ],
-  "slides": 92,
+  "slides": 91,
   "size_mb": 0.3
  }
 ]
