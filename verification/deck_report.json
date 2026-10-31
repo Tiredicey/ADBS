@@ -1,0 +1,176 @@
+[
+ {
+  "deck": "ADBS_FULL_answer_key.pptx",
+  "parts": [
+   {
+    "part": 1,
+    "slides": 15,
+    "words": 292,
+    "seconds_at_100_130_150_wpm": [
+     175,
+     135,
+     117
+    ]
+   },
+   {
+    "part": 2,
+    "slides": 20,
+    "words": 278,
+    "seconds_at_100_130_150_wpm": [
+     167,
+     128,
+     111
+    ]
+   },
+   {
+    "part": 3,
+    "slides": 6,
+    "words": 213,
+    "seconds_at_100_130_150_wpm": [
+     128,
+     98,
+     85
+    ]
+   },
+   {
+    "part": 4,
+    "slides": 6,
+    "words": 178,
+    "seconds_at_100_130_150_wpm": [
+     107,
+     82,
+     71
+    ]
+   },
+   {
+    "part": 5,
+    "slides": 7,
+    "words": 187,
+    "seconds_at_100_130_150_wpm": [
+     112,
+     86,
+     75
+    ]
+   },
+   {
+    "part": 6,
+    "slides": 5,
+    "words": 151,
+    "seconds_at_100_130_150_wpm": [
+     91,
+     70,
+     60
+    ]
+   },
+   {
+    "part": 7,
+    "slides": 6,
+    "words": 228,
+    "seconds_at_100_130_150_wpm": [
+     137,
+     105,
+     91
+    ]
+   },
+   {
+    "part": 8,
+    "slides": 7,
+    "words": 243,
+    "seconds_at_100_130_150_wpm": [
+     146,
+     112,
+     97
+    ]
+   }
+  ],
+  "slides": 78,
+  "size_mb": 9.9
+ },
+ {
+  "deck": "ADBS_GROUP_DECK.pptx",
+  "parts": [
+   {
+    "part": 1,
+    "slides": 16,
+    "words": 292,
+    "seconds_at_100_130_150_wpm": [
+     175,
+     135,
+     117
+    ]
+   },
+   {
+    "part": 2,
+    "slides": 21,
+    "words": 278,
+    "seconds_at_100_130_150_wpm": [
+     167,
+     128,
+     111
+    ]
+   },
+   {
+    "part": 3,
+    "slides": 9,
+    "words": 213,
+    "seconds_at_100_130_150_wpm": [
+     128,
+     98,
+     85
+    ]
+   },
+   {
+    "part": 4,
+    "slides": 7,
+    "words": 178,
+    "seconds_at_100_130_150_wpm": [
+     107,
+     82,
+     71
+    ]
+   },
+   {
+    "part": 5,
+    "slides": 9,
+    "words": 187,
+    "seconds_at_100_130_150_wpm": [
+     112,
+     86,
+     75
+    ]
+   },
+   {
+    "part": 6,
+    "slides": 9,
+    "words": 151,
+    "seconds_at_100_130_150_wpm": [
+     91,
+     70,
+     60
+    ]
+   },
+   {
+    "part": 7,
+    "slides": 6,
+    "words": 228,
+    "seconds_at_100_130_150_wpm": [
+     137,
+     105,
+     91
+    ]
+   },
+   {
+    "part": 8,
+    "slides": 7,
+    "words": 243,
+    "seconds_at_100_130_150_wpm": [
+     146,
+     112,
+     97
+    ]
+   }
+  ],
+  "slides": 96,
+  "size_mb": 9.9
+ }
+]
