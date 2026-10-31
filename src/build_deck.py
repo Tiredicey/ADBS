@@ -597,19 +597,49 @@ def slide_agenda(deck):
              "\n\nSOUNDBITE (say it last, slowly): " + AGENDA_SOUNDBITE)
 
 
-def slide_divider(deck, part, nslides, seconds):
+FRAME_DIR = ROOT / "build" / "frames"
+FRAME_W, FRAME_H = 3.2, 6.55
+FRAME_CREDIT = {
+    "bebop": "Still: Cowboy Bebop opening, \u00a9 1998 Sunrise Inc. Used for teaching only.",
+    "orbital": "Still: The Orbital Children official trailer (Netflix). Used for teaching only.",
+}
+FRAME_VIDEO = {1: "bebop", 2: "bebop", 3: "bebop", 4: "bebop", 5: "bebop", 6: "bebop", 7: "orbital", 8: "orbital"}
+
+
+def fits(t, w, h, pt, bold=False):
+    return wrapped_lines(t, w, pt, bold) * pt * 1.2 / 72 <= h
+
+
+def slide_divider(deck, part, nslides, seconds, frames=False):
     s = deck.new("INK")
     block, on_block = DIVIDER_BLOCKS[(part["n"] - 1) % len(DIVIDER_BLOCKS)]
     rect(s, 0, 0, 4.0, SH, fill=block)
     rect(s, 4.0, 0, 0.16, SH, fill="BEBOP_PAPER")
     rect(s, 4.16, 6.55, SW - 4.16, 0.22, fill="BEBOP_TEAL")
     rect(s, 4.16, 6.77, SW - 4.16, 0.06, fill="BEBOP_PAPER")
+    tw = 8.3
+    if frames:
+        img = FRAME_DIR / f"part{part['n']}.jpg"
+        if not img.exists():
+            raise SystemExit(f"missing {img}: run python3 tools/extract_frames.py first")
+        fx = SW - FRAME_W
+        s.shapes.add_picture(str(img), I(fx), 0, I(FRAME_W), I(FRAME_H)).name = "EXEMPT_FRAME"
+        rect(s, fx - 0.08, 0, 0.08, FRAME_H, fill="BEBOP_PAPER")
+        text(s, 4.6, 6.86, SW - 4.6 - 0.2, 0.5, FRAME_CREDIT[FRAME_VIDEO[part["n"]]], size=14, color="COMMENT",
+             align=PP_ALIGN.RIGHT, anchor=MSO_ANCHOR.MIDDLE, name="EXEMPT_CREDIT")
+        tw = fx - 0.08 - 0.3 - 4.6
+    title = part["title"]
+    tpt = next(pt for pt in (44, 40, 36, 32) if fits(title, tw, 2.3, pt, True) or pt == 32)
+    quote = "\u201c" + part["takeaway"] + "\u201d"
+    for t, h, pt, b in [(title, 2.3, tpt, True), (part["kicker"], 1.0, FLOOR, False), (quote, 1.3, 32, False)]:
+        if not fits(t, tw, h, pt, b):
+            raise SystemExit(f"divider text does not fit (part {part['n']}): {t}")
     text(s, 0.35, 0.35, 3.4, 0.5, "PART", size=FLOOR, bold=True, color=on_block)
     text(s, 0.2, 0.8, 3.7, 3.4, str(part["n"]), size=220, bold=True, color=on_block)
-    text(s, 4.6, 0.55, 8.3, 2.3, part["title"], size=44, bold=True, color="WHITE", anchor=MSO_ANCHOR.BOTTOM)
-    text(s, 4.6, 2.95, 8.3, 1.0, part["kicker"], size=FLOOR, color="OUT")
-    text(s, 4.6, 4.05, 8.3, 1.1, "“" + part["takeaway"] + "”", size=32, color="AMBER")
-    text(s, 4.6, 5.45, 8.3, 0.5, f"{nslides} slides · about {seconds // 60} min {seconds % 60:02d} s", size=22, color="COMMENT", name="EXEMPT_PROGRESS")
+    text(s, 4.6, 0.45, tw, 2.3, title, size=tpt, bold=True, color="WHITE", anchor=MSO_ANCHOR.BOTTOM)
+    text(s, 4.6, 2.9, tw, 1.0, part["kicker"], size=FLOOR, color="OUT")
+    text(s, 4.6, 4.0, tw, 1.3, quote, size=32, color="AMBER")
+    text(s, 4.6, 5.55, tw, 0.5, f"{nslides} slides \u00b7 about {seconds // 60} min {seconds % 60:02d} s", size=22, color="COMMENT", name="EXEMPT_PROGRESS")
     timing = f"\n\n(Whole part: {part_words(part, REMOVED_SLIDES)} words, about {seconds // 60} min {seconds % 60:02d} s at a calm 130 words a minute. Limit: 3 minutes.)"
     notes(s, "SAY:\n" + part["intro"] + timing)
 
@@ -646,7 +676,7 @@ def slide_refs(deck):
 
 # ---------- build ----------
 
-def build(group, out):
+def build(group, out, frames=False):
     d = Deck(group)
     report = {"deck": out.name, "parts": []}
     slide_title(d)
@@ -658,7 +688,7 @@ def build(group, out):
         n = len(specs) + 1
         w = part_words(part, REMOVED_SLIDES)
         sec = round(w / 130 * 60)
-        slide_divider(d, part, n, sec)
+        slide_divider(d, part, n, sec, frames)
         if group and part["n"] in GROUP_PARTS and part.get("setup"):
             slide_setup(d, part)
         for i, sp in enumerate(specs, start=2):
@@ -683,6 +713,10 @@ if __name__ == "__main__":
     reports = [build(False, ROOT / "01_FULL_DECK" / "ADBS_FULL_answer_key.pptx"),
                build(True, ROOT / "02_GROUP_DECK" / "ADBS_GROUP_DECK.pptx")]
     (ROOT / "verification" / "deck_report.json").write_text(json.dumps(reports, indent=1))
+    if "--frames" in sys.argv:
+        # Decks with anime stills stay out of the public repo (03_WITH_FRAMES/ is gitignored).
+        reports += [build(False, ROOT / "03_WITH_FRAMES" / "ADBS_FULL_answer_key_FRAMES.pptx", frames=True),
+                    build(True, ROOT / "03_WITH_FRAMES" / "ADBS_GROUP_DECK_FRAMES.pptx", frames=True)]
     for r in reports:
         print(r["deck"], r["slides"], "slides", r["size_mb"], "MB")
     for p in reports[0]["parts"]:

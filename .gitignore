@@ -8,3 +8,4 @@ video/build/
 __pycache__/
 *.pyc
 build/
+03_WITH_FRAMES/

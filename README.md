@@ -24,6 +24,22 @@ IT2003 Advanced Database Systems group presentation. Content follows the 07, 08 
 
 Scratched on 2026-10-31 at the group's request. The last version (render scripts, score, measurements) is in git history at commit `b1e4eb7`.
 
+## Frames on the part dividers (private copies only)
+
+Added on 2026-10-31 at the user's request. Each of the 8 part dividers can show one still on its right edge (3.2 x 6.55 in), with a credit line under it. Content slides stay plain.
+
+- Parts 1 to 6: stills from the Cowboy Bebop opening "Tank!" (© 1998 Sunrise Inc.) at 33.22, 77.80, 62.55, 47.13, 54.74 and 67.67 s.
+- Parts 7 and 8: character stills from The Orbital Children trailer (Netflix) at 53.00 and 51.20 s.
+- Every still was chosen to have no burned-in subtitles or credits.
+- The stills are copyrighted. `build/frames/` and `03_WITH_FRAMES/` are gitignored, so they never reach this public repo. The decks in `01_FULL_DECK/` and `02_GROUP_DECK/` contain no pictures.
+
+To make the frame decks (this needs the two uploaded videos):
+
+```bash
+python3 tools/extract_frames.py [folder-with-videos]   # writes build/frames/part1..8.jpg
+python3 src/build_deck.py --frames                     # also writes 03_WITH_FRAMES/*_FRAMES.pptx
+```
+
 ## Rebuild
 
 ```bash
